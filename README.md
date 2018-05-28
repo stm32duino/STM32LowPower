@@ -30,10 +30,11 @@ Arduino library to support STM32 Low Power.
 **param** serial: pointer to a UART  
 **param** callback: pointer to a callback to call when the board is waked up.  
 
-* **`void enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback)`**
+* **`void enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback, void * data)`**
 attach a callback to the RTC peripheral.  
-**param** rtc: pointer to RTC  
+**param** rtc: pointer to RTC. Could be NULL as RTC is a Singleton.  
 **param** callback: pointer to a callback to call when the board is waked up.  
+**param** callback: data: optional pointer to callback data parameters (default NULL).  
 
 * **`void enableWakeupFrom(TwoWire *wire, voidFuncPtrVoid callback)`**:
 enable an I2C peripheral in low power mode. See board documentation for low power mode compatibility. **Currently not available.**  
