@@ -1,5 +1,9 @@
 # STM32LowPower
-Arduino library to support Low Power
+Arduino library to support STM32 Low Power.
+
+## Requirement
+ * [Arduino_Core_STM32](https://github.com/stm32duino/Arduino_Core_STM32) version >= 1.3.0
+ * [STM32RTC](https://github.com/stm32duino/STM32RTC)
 
 ## API
 
@@ -26,19 +30,24 @@ Arduino library to support Low Power
 **param** serial: pointer to a UART  
 **param** callback: pointer to a callback to call when the board is waked up.  
 
-* **`void enableWakeupFrom(TwoWire *wire, voidFuncPtrVoid callback)`**:
-enable an I2C peripheral in low power mode. See board documentation for low power mode compatibility.  
-**param** wire: pointer to I2C  
-**param** callback: pointer to a callback to call when the board is waked up.  
-
 * **`void enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback)`**
 attach a callback to the RTC peripheral.  
 **param** rtc: pointer to RTC  
 **param** callback: pointer to a callback to call when the board is waked up.  
 
+* **`void enableWakeupFrom(TwoWire *wire, voidFuncPtrVoid callback)`**:
+enable an I2C peripheral in low power mode. See board documentation for low power mode compatibility. **Currently not available.**  
+**param** wire: pointer to I2C  
+**param** callback: pointer to a callback to call when the board is waked up.  
+
+
 `Begin()` function must be called at least once before `idle()`, `sleep()`, `deepSleep()` or `shutdown()` functions.  
 
 `attachInterruptWakeup()` or `enableWakeupFrom()` functions should be called before `idle()`, `sleep()`, `deepSleep()` or `shutdown()` functions.  
+
+HardwareSerial used as Wakeup source will configure it to use HSI clock source even if another peripheral clock is configured.
+
+RTC used as Wakeup source will configure it to use LSE clock source even if another RTC clock source is selected.
 
 The board will restart when exit the deepSleep or shutdown mode.  
 
