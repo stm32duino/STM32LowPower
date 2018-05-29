@@ -83,9 +83,18 @@ public:
   void enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback, void *data = NULL);
 
 private:
-  bool _configured;     /* Low Power mode initialization status */
-  serial_t *_serial;    /* Serial for wakeup from deep sleep */
-  void programRtcWakeUp(uint32_t millis);
+  enum LP_Mode: uint8_t
+  {
+    IDLE_MODE,
+    SLEEP_MODE,
+    DEEP_SLEEP_MODE,
+    SHUTDOWN_MODE
+  };
+
+  bool _configured;     // Low Power mode initialization status
+  serial_t *_serial;    // Serial for wakeup from deep sleep
+  bool _rtc_wakeup;     // Is RTC wakeup?
+  void programRtcWakeUp(uint32_t millis, LP_Mode lp_mode);
 };
 
 extern STM32LowPower LowPower;
