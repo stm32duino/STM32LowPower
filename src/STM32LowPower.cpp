@@ -177,7 +177,7 @@ void STM32LowPower::programRtcWakeUp(uint32_t millis, LP_Mode lp_mode)
   int epoc;
   uint32_t sec;
   STM32RTC& rtc = STM32RTC::getInstance();
-  STM32RTC::RTC_Source_Clock clkSrc = rtc.getClockSource();
+  STM32RTC::Source_Clock clkSrc = rtc.getClockSource();
 
   switch(lp_mode) {
     case IDLE_MODE:
