@@ -177,7 +177,7 @@ void STM32LowPower::programRtcWakeUp(uint32_t millis, LP_Mode lp_mode)
   int epoc;
   uint32_t sec;
   STM32RTC& rtc = STM32RTC::getInstance();
-  STM32RTC::RTC_Source_Clock clkSrc = rtc.getClockSource();
+  STM32RTC::Source_Clock clkSrc = rtc.getClockSource();
 
   switch(lp_mode) {
     case IDLE_MODE:
@@ -185,16 +185,16 @@ void STM32LowPower::programRtcWakeUp(uint32_t millis, LP_Mode lp_mode)
       break;
     // LSI or LSE must be selected as clock source to wakeup the device.
     case DEEP_SLEEP_MODE:
-      clkSrc = (clkSrc == STM32RTC::RTC_HSE_CLOCK) ? STM32RTC::RTC_LSI_CLOCK : clkSrc;
+      clkSrc = (clkSrc == STM32RTC::HSE_CLOCK) ? STM32RTC::LSI_CLOCK : clkSrc;
       break;
     default:
     case SHUTDOWN_MODE:
 #ifdef STM32L4xx
       // For shutdown mode LSE have to be used (STM32L4 series only)
-      clkSrc = STM32RTC::RTC_LSE_CLOCK;
+      clkSrc = STM32RTC::LSE_CLOCK;
 #else
       // LSE or LSI
-      clkSrc = (clkSrc == STM32RTC::RTC_HSE_CLOCK) ? STM32RTC::RTC_LSI_CLOCK : clkSrc;
+      clkSrc = (clkSrc == STM32RTC::HSE_CLOCK) ? STM32RTC::LSI_CLOCK : clkSrc;
 #endif
       break;
   }
