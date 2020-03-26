@@ -49,6 +49,13 @@
 #include "STM32RTC.h"
 #include "Wire.h"
 
+enum LP_Mode : uint8_t {
+  IDLE_MODE,
+  SLEEP_MODE,
+  DEEP_SLEEP_MODE,
+  SHUTDOWN_MODE
+};
+
 typedef void (*voidFuncPtrVoid)( void ) ;
 
 class STM32LowPower {
@@ -77,20 +84,12 @@ public:
     shutdown((uint32_t)millis);
   }
 
-  void attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode);
+  void attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode, LP_Mode LowPowerMode = SHUTDOWN_MODE);
 
   void enableWakeupFrom(HardwareSerial *serial, voidFuncPtrVoid callback);
   void enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback, void *data = NULL);
 
 private:
-  enum LP_Mode: uint8_t
-  {
-    IDLE_MODE,
-    SLEEP_MODE,
-    DEEP_SLEEP_MODE,
-    SHUTDOWN_MODE
-  };
-
   bool _configured;     // Low Power mode initialization status
   serial_t *_serial;    // Serial for wakeup from deep sleep
   bool _rtc_wakeup;     // Is RTC wakeup?
