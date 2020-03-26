@@ -67,7 +67,7 @@ void STM32LowPower::begin(void)
   */
 void STM32LowPower::idle(uint32_t millis)
 {
-  if((millis > 0) || _rtc_wakeup) {
+  if ((millis > 0) || _rtc_wakeup) {
     programRtcWakeUp(millis, IDLE_MODE);
   }
   LowPower_sleep(PWR_MAINREGULATOR_ON);
@@ -81,7 +81,7 @@ void STM32LowPower::idle(uint32_t millis)
   */
 void STM32LowPower::sleep(uint32_t millis)
 {
-  if((millis > 0) || _rtc_wakeup) {
+  if ((millis > 0) || _rtc_wakeup) {
     programRtcWakeUp(millis, SLEEP_MODE);
   }
   LowPower_sleep(PWR_LOWPOWERREGULATOR_ON);
@@ -95,7 +95,7 @@ void STM32LowPower::sleep(uint32_t millis)
   */
 void STM32LowPower::deepSleep(uint32_t millis)
 {
-  if((millis > 0) || _rtc_wakeup) {
+  if ((millis > 0) || _rtc_wakeup) {
     programRtcWakeUp(millis, DEEP_SLEEP_MODE);
   }
   LowPower_stop(_serial);
@@ -109,7 +109,7 @@ void STM32LowPower::deepSleep(uint32_t millis)
   */
 void STM32LowPower::shutdown(uint32_t millis)
 {
-  if((millis > 0) || _rtc_wakeup) {
+  if ((millis > 0) || _rtc_wakeup) {
     programRtcWakeUp(millis, SHUTDOWN_MODE);
   }
   LowPower_shutdown();
@@ -143,7 +143,7 @@ void STM32LowPower::attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback
   */
 void STM32LowPower::enableWakeupFrom(HardwareSerial *serial, voidFuncPtrVoid callback)
 {
-  if(serial != NULL) {
+  if (serial != NULL) {
     _serial = &(serial->_serial);
     // Reconfigure serial for low power mode (using HSI as clock source)
     serial->configForLowPower();
@@ -161,7 +161,7 @@ void STM32LowPower::enableWakeupFrom(HardwareSerial *serial, voidFuncPtrVoid cal
   */
 void STM32LowPower::enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback, void *data)
 {
-  if(rtc == NULL) {
+  if (rtc == NULL) {
     rtc = &(STM32RTC::getInstance());
   }
   _rtc_wakeup = true;
@@ -178,10 +178,10 @@ void STM32LowPower::programRtcWakeUp(uint32_t millis, LP_Mode lp_mode)
 {
   int epoc;
   uint32_t sec;
-  STM32RTC& rtc = STM32RTC::getInstance();
+  STM32RTC &rtc = STM32RTC::getInstance();
   STM32RTC::Source_Clock clkSrc = rtc.getClockSource();
 
-  switch(lp_mode) {
+  switch (lp_mode) {
     case IDLE_MODE:
     case SLEEP_MODE:
       break;
@@ -202,15 +202,15 @@ void STM32LowPower::programRtcWakeUp(uint32_t millis, LP_Mode lp_mode)
   }
   rtc.configForLowPower(clkSrc);
 
-  if(millis > 0) {
+  if (millis > 0) {
     // Convert millisecond to second
     sec = millis / 1000;
     // Minimum is 1 second
-    if (sec == 0){
+    if (sec == 0) {
       sec = 1;
     }
 
     epoc = rtc.getEpoch();
-    rtc.setAlarmEpoch( epoc + sec );
+    rtc.setAlarmEpoch(epoc + sec);
   }
 }
