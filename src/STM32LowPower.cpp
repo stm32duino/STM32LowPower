@@ -125,11 +125,10 @@ void STM32LowPower::shutdown(uint32_t millis)
   */
 void STM32LowPower::attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode, LP_Mode LowPowerMode)
 {
-  // All GPIO for idle (smt32 sleep) and sleep (stm32 stop)
   attachInterrupt(pin, callback, mode);
 
   if (LowPowerMode == SHUTDOWN_MODE) {
-    // If Gpio is a Wake up pin activate it for deepSleep (standby stm32) and shutdown
+    // If Gpio is a Wake up pin activate it for shutdown (standby or shutdown stm32)
     LowPower_EnableWakeUpPin(pin, mode);
   }
 }
