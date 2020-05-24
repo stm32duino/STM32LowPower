@@ -169,13 +169,14 @@ void STM32LowPower::enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback, void *
 
 /**
   * @brief  Configure the RTC alarm
-  * @param  millis: time of the alarm in milliseconds. At least 1000ms.
+  * @param  millis: time of the alarm in milliseconds.
   * @param  lp_mode: low power mode targeted.
   * @retval None
   */
 void STM32LowPower::programRtcWakeUp(uint32_t millis, LP_Mode lp_mode)
 {
   int epoc;
+  uint32_t epoc_ms;
   uint32_t sec;
   STM32RTC &rtc = STM32RTC::getInstance();
   STM32RTC::Source_Clock clkSrc = rtc.getClockSource();
@@ -204,12 +205,17 @@ void STM32LowPower::programRtcWakeUp(uint32_t millis, LP_Mode lp_mode)
   if (millis > 0) {
     // Convert millisecond to second
     sec = millis / 1000;
-    // Minimum is 1 second
-    if (sec == 0) {
-      sec = 1;
+    millis = millis % 1000;
+
+    epoc = rtc.getEpoch(&epoc_ms);
+    
+    //Update epoch_ms - might need to add a second to epoch
+    epoc_ms += millis;
+    if (epoc_ms >= 1000) {
+      sec ++;
+      epoc_ms -= 1000;
     }
 
-    epoc = rtc.getEpoch();
-    rtc.setAlarmEpoch(epoc + sec);
+    rtc.setAlarmEpoch(epoc + sec, STM32RTC::MATCH_DHHMMSS, epoc_ms);
   }
 }
