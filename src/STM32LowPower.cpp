@@ -60,13 +60,13 @@ void STM32LowPower::begin(void)
 /**
   * @brief  Enable the idle low power mode (STM32 sleep). Exit this mode on
   *         interrupt or in n milliseconds.
-  * @param  millis: optional delay before leave the idle mode (default: 0).
+  * @param  ms: optional delay before leave the idle mode (default: 0).
   * @retval None
   */
-void STM32LowPower::idle(uint32_t millis)
+void STM32LowPower::idle(uint32_t ms)
 {
-  if ((millis > 0) || _rtc_wakeup) {
-    programRtcWakeUp(millis, IDLE_MODE);
+  if ((ms != 0) || _rtc_wakeup) {
+    programRtcWakeUp(ms, IDLE_MODE);
   }
   LowPower_sleep(PWR_MAINREGULATOR_ON);
 }
@@ -74,13 +74,13 @@ void STM32LowPower::idle(uint32_t millis)
 /**
   * @brief  Enable the sleep low power mode (STM32 sleep). Exit this mode on
   *         interrupt or in n milliseconds.
-  * @param  millis: optional delay before leave the sleep mode (default: 0).
+  * @param  ms: optional delay before leave the sleep mode (default: 0).
   * @retval None
   */
-void STM32LowPower::sleep(uint32_t millis)
+void STM32LowPower::sleep(uint32_t ms)
 {
-  if ((millis > 0) || _rtc_wakeup) {
-    programRtcWakeUp(millis, SLEEP_MODE);
+  if ((ms != 0) || _rtc_wakeup) {
+    programRtcWakeUp(ms, SLEEP_MODE);
   }
   LowPower_sleep(PWR_LOWPOWERREGULATOR_ON);
 }
@@ -88,13 +88,13 @@ void STM32LowPower::sleep(uint32_t millis)
 /**
   * @brief  Enable the deepsleep low power mode (STM32 stop). Exit this mode on
   *         interrupt or in n milliseconds.
-  * @param  millis: optional delay before leave the deepSleep mode (default: 0).
+  * @param  ms: optional delay before leave the deepSleep mode (default: 0).
   * @retval None
   */
-void STM32LowPower::deepSleep(uint32_t millis)
+void STM32LowPower::deepSleep(uint32_t ms)
 {
-  if ((millis > 0) || _rtc_wakeup) {
-    programRtcWakeUp(millis, DEEP_SLEEP_MODE);
+  if ((ms != 0) || _rtc_wakeup) {
+    programRtcWakeUp(ms, DEEP_SLEEP_MODE);
   }
   LowPower_stop(_serial);
 }
@@ -102,13 +102,13 @@ void STM32LowPower::deepSleep(uint32_t millis)
 /**
   * @brief  Enable the shutdown low power mode (STM32 shutdown or standby mode).
   *          Exit this mode on interrupt or in n milliseconds.
-  * @param  millis: optional delay before leave the shutdown mode (default: 0).
+  * @param  ms: optional delay before leave the shutdown mode (default: 0).
   * @retval None
   */
-void STM32LowPower::shutdown(uint32_t millis)
+void STM32LowPower::shutdown(uint32_t ms)
 {
-  if ((millis > 0) || _rtc_wakeup) {
-    programRtcWakeUp(millis, SHUTDOWN_MODE);
+  if ((ms != 0) || _rtc_wakeup) {
+    programRtcWakeUp(ms, SHUTDOWN_MODE);
   }
   LowPower_shutdown();
 }
@@ -167,11 +167,11 @@ void STM32LowPower::enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback, void *
 
 /**
   * @brief  Configure the RTC alarm
-  * @param  millis: time of the alarm in milliseconds.
+  * @param  ms: time of the alarm in milliseconds.
   * @param  lp_mode: low power mode targeted.
   * @retval None
   */
-void STM32LowPower::programRtcWakeUp(uint32_t millis, LP_Mode lp_mode)
+void STM32LowPower::programRtcWakeUp(uint32_t ms, LP_Mode lp_mode)
 {
   int epoc;
   uint32_t sec;
@@ -199,17 +199,17 @@ void STM32LowPower::programRtcWakeUp(uint32_t millis, LP_Mode lp_mode)
   }
   rtc.configForLowPower(clkSrc);
 
-  if (millis > 0) {
+  if (ms != 0) {
     // Convert millisecond to second
-    sec = millis / 1000;
+    sec = ms / 1000;
 
 #if defined(STM32_RTC_VERSION) && (STM32_RTC_VERSION  >= 0x01010000)
     uint32_t epoc_ms;
-    millis = millis % 1000;
+    ms = ms % 1000;
     epoc = rtc.getEpoch(&epoc_ms);
 
     //Update epoch_ms - might need to add a second to epoch
-    epoc_ms += millis;
+    epoc_ms += ms;
     if (epoc_ms >= 1000) {
       sec ++;
       epoc_ms -= 1000;

@@ -66,28 +66,28 @@ class STM32LowPower {
 
     void begin(void);
 
-    void idle(uint32_t millis = 0);
-    void idle(int millis)
+    void idle(uint32_t ms = 0);
+    void idle(int ms)
     {
-      idle((uint32_t)millis);
+      idle((uint32_t)ms);
     }
 
-    void sleep(uint32_t millis = 0);
-    void sleep(int millis)
+    void sleep(uint32_t ms = 0);
+    void sleep(int ms)
     {
-      sleep((uint32_t)millis);
+      sleep((uint32_t)ms);
     }
 
-    void deepSleep(uint32_t millis = 0);
-    void deepSleep(int millis)
+    void deepSleep(uint32_t ms = 0);
+    void deepSleep(int ms)
     {
-      deepSleep((uint32_t)millis);
+      deepSleep((uint32_t)ms);
     }
 
-    void shutdown(uint32_t millis = 0);
-    void shutdown(int millis)
+    void shutdown(uint32_t ms = 0);
+    void shutdown(int ms)
     {
-      shutdown((uint32_t)millis);
+      shutdown((uint32_t)ms);
     }
 
     void attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode, LP_Mode LowPowerMode = SHUTDOWN_MODE);
@@ -99,7 +99,7 @@ class STM32LowPower {
     bool _configured;     // Low Power mode initialization status
     serial_t *_serial;    // Serial for wakeup from deep sleep
     bool _rtc_wakeup;     // Is RTC wakeup?
-    void programRtcWakeUp(uint32_t millis, LP_Mode lp_mode);
+    void programRtcWakeUp(uint32_t ms, LP_Mode lp_mode);
 };
 
 extern STM32LowPower LowPower;
