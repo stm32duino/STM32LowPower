@@ -173,7 +173,7 @@ void STM32LowPower::enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback, void *
   */
 void STM32LowPower::programRtcWakeUp(uint32_t ms, LP_Mode lp_mode)
 {
-  int epoc;
+  uint32_t epoc;
   uint32_t sec;
   STM32RTC &rtc = STM32RTC::getInstance();
   STM32RTC::Source_Clock clkSrc = rtc.getClockSource();
