@@ -37,8 +37,8 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - uses: arduino/actions/libraries/spell-check@master
-      # with:
-      #   ignore-words-list: "./extras/codespell-ignore-words-list.txt"
+      with:
+        ignore-words-list: "./extras/codespell-ignore-words-list.txt"
   lib_build:
     runs-on: ubuntu-latest
     name: Library compilation

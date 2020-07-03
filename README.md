@@ -64,7 +64,7 @@ higher than idle mode.
 * **deep sleep mode**: medium latency (ms range), clocks are gated to reduced. Memories
 and voltage supplies are retained. If supported, Peripherals wake-up is possible (UART, I2C ...).
 
-* **shutdown mode**: high wake-up latency (posible hundereds of ms or second
+* **shutdown mode**: high wake-up latency (possible hundereds of ms or second
 timeframe), voltage supplies are cut except always-on domain, memory content
 are lost and system basically reboots.
 
