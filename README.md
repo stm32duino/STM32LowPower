@@ -3,23 +3,24 @@ Arduino library to support STM32 Low Power.
 
 ## Requirement
  * [Arduino_Core_STM32](https://github.com/stm32duino/Arduino_Core_STM32) version >= 1.3.0
- * [STM32RTC](https://github.com/stm32duino/STM32RTC)
 
 ## API
 
 * **`void begin()`**: configure the Low Power
 
-* **`void idle(uint32_t millis)`**: enter in idle mode  
-**param** millis (optional): number of milliseconds before to exit the mode. At least 1000 ms. The RTC is used in alarm mode to wakeup the chip in millis milliseconds.
+* **`void idle(uint32_t ms)`**: enter in idle mode
+**param** ms (optional): number of milliseconds before to exit the mode. The RTC is used in alarm mode to wakeup the chip in ms milliseconds.
 
-* **`void sleep(uint32_t millis)`**: enter in sleep mode  
-**param** millis (optional): number of milliseconds before to exit the mode. At least 1000 ms. The RTC is used in alarm mode to wakeup the chip in millis milliseconds.
+* **`void sleep(uint32_t ms)`**: enter in sleep mode
+**param** ms (optional): number of milliseconds before to exit the mode. he RTC is used in alarm mode to wakeup the chip in ms milliseconds.
 
-* **`void deepSleep(uint32_t millis)`**: enter in deepSleep mode  
-**param** millis (optional): number of milliseconds before to exit the mode. At least 1000 ms. The RTC is used in alarm mode to wakeup the chip in millis milliseconds.
+* **`void deepSleep(uint32_t ms)`**: enter in deepSleep mode
+**param** ms (optional): number of milliseconds before to exit the mode. The RTC is used in alarm mode to wakeup the chip in ms milliseconds.
 
-* **`void shutdown(uint32_t millis)`**: enter in shutdown mode
-**param** millis (optional): number of milliseconds before to exit the mode. At least 1000 ms. The RTC is used in alarm mode to wakeup the board in millis milliseconds.
+* **`void shutdown(uint32_t ms)`**: enter in shutdown mode
+**param** ms (optional): number of milliseconds before to exit the mode. The RTC is used in alarm mode to wakeup the board in ms milliseconds.
+
+**Note: With [STM32RTC](https://github.com/stm32duino/STM32RTC) version lower than 1.1.0, the minimum number of milliseconds is 1000 ms.**
 
 * **`void attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode)`**: Enable GPIO pin in interrupt mode. If the pin is a wakeup pin, it is configured as wakeup source (see board documentation).  
 **param** pin: pin number  
