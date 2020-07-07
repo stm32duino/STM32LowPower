@@ -1,15 +1,13 @@
 /**
 ******************************************************************************
 * @file    STM32LowPower.cpp
-* @author  WI6LABS
-* @version V1.0.0
-* @date    11-December-2017
+* @author  Frederic Pillon
 * @brief   Provides a STM32 Low Power interface with Arduino
 *
 ******************************************************************************
 * @attention
 *
-* <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+* <h2><center>&copy; COPYRIGHT(c) 2020 STMicroelectronics</center></h2>
 *
 * Redistribution and use in source and binary forms, with or without modification,
 * are permitted provided that the following conditions are met:
