@@ -49,7 +49,6 @@
 #endif
 
 #include "STM32RTC.h"
-#include "Wire.h"
 
 enum LP_Mode : uint8_t {
   IDLE_MODE,
