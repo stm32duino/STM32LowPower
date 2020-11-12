@@ -81,10 +81,6 @@ void alarmMatch(void* data)
 
   if (data != NULL) {
     _millis = *(uint32_t*)data;
-    // Minimum is 1 second
-    if (sec == 0) {
-      sec = 1;
-    }
   }
 
   sec = _millis / 1000;
