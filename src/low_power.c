@@ -231,7 +231,7 @@ void LowPower_stop(serial_t *obj)
 #endif
 
   /* Enter Stop mode */
-#if defined(STM32L4xx)
+#if defined(STM32L4xx) || defined(STM32L5xx)
   if ((WakeUpUart == NULL) || (WakeUpUart->Instance == (USART_TypeDef *)LPUART1_BASE)) {
     // STM32L4xx supports STOP2 mode which halves consumption
     HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
@@ -290,7 +290,7 @@ void LowPower_standby()
 void LowPower_shutdown()
 {
   __disable_irq();
-#ifdef STM32L4xx
+#if defined(STM32L4xx) || defined(STM32L5xx)
   /* LSE must be on to use shutdown mode */
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == SET) {
     HAL_PWREx_EnterSHUTDOWNMode();
