@@ -97,79 +97,76 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
   uint32_t wkup_pin;
   PinName p = digitalPinToPinName(pin);
   if (p != NC) {
-    switch (p) {
-      default :
 #ifdef PWR_WAKEUP_PIN1
-      case SYS_WKUP1 :
-        wkup_pin = PWR_WAKEUP_PIN1;
+    if (p == SYS_WKUP1) {
+      wkup_pin = PWR_WAKEUP_PIN1;
 #ifdef PWR_WAKEUP_PIN1_HIGH
-        if (mode != RISING) {
-          wkup_pin = PWR_WAKEUP_PIN1_LOW;
-        }
+      if (mode != RISING) {
+        wkup_pin = PWR_WAKEUP_PIN1_LOW;
+      }
 #endif
-        break;
+    }
 #endif /* PWR_WAKEUP_PIN1 */
 #ifdef PWR_WAKEUP_PIN2
-      case SYS_WKUP2 :
-        wkup_pin = PWR_WAKEUP_PIN2;
+    if (p == SYS_WKUP2) {
+      wkup_pin = PWR_WAKEUP_PIN2;
 #ifdef PWR_WAKEUP_PIN2_HIGH
-        if (mode != RISING) {
-          wkup_pin = PWR_WAKEUP_PIN2_LOW;
-        }
+      if (mode != RISING) {
+        wkup_pin = PWR_WAKEUP_PIN2_LOW;
+      }
 #endif
-        break;
+    }
 #endif /* PWR_WAKEUP_PIN2 */
 #ifdef PWR_WAKEUP_PIN3
-      case SYS_WKUP3 :
-        wkup_pin = PWR_WAKEUP_PIN3;
+    if (p == SYS_WKUP3) {
+      wkup_pin = PWR_WAKEUP_PIN3;
 #ifdef PWR_WAKEUP_PIN3_HIGH
-        if (mode != RISING) {
-          wkup_pin = PWR_WAKEUP_PIN3_LOW;
-        }
+      if (mode != RISING) {
+        wkup_pin = PWR_WAKEUP_PIN3_LOW;
+      }
 #endif
-        break;
+    }
 #endif /* PWR_WAKEUP_PIN3 */
 #ifdef PWR_WAKEUP_PIN4
-      case SYS_WKUP4 :
-        wkup_pin = PWR_WAKEUP_PIN4;
+    if (p == SYS_WKUP4) {
+      wkup_pin = PWR_WAKEUP_PIN4;
 #ifdef PWR_WAKEUP_PIN4_HIGH
-        if (mode != RISING) {
-          wkup_pin = PWR_WAKEUP_PIN4_LOW;
-        }
+      if (mode != RISING) {
+        wkup_pin = PWR_WAKEUP_PIN4_LOW;
+      }
 #endif
-        break;
+    }
 #endif /* PWR_WAKEUP_PIN4 */
 #ifdef PWR_WAKEUP_PIN5
-      case SYS_WKUP5 :
-        wkup_pin = PWR_WAKEUP_PIN5;
+    if (p == SYS_WKUP5) {
+      wkup_pin = PWR_WAKEUP_PIN5;
 #ifdef PWR_WAKEUP_PIN5_HIGH
-        if (mode != RISING) {
-          wkup_pin = PWR_WAKEUP_PIN5_LOW;
-        }
+      if (mode != RISING) {
+        wkup_pin = PWR_WAKEUP_PIN5_LOW;
+      }
 #endif
-        break;
+    }
 #endif /* PWR_WAKEUP_PIN5 */
 #ifdef PWR_WAKEUP_PIN6
-      case SYS_WKUP6 :
-        wkup_pin = PWR_WAKEUP_PIN6;
+    if (p == SYS_WKUP6) {
+      wkup_pin = PWR_WAKEUP_PIN6;
 #ifdef PWR_WAKEUP_PIN6_HIGH
-        if (mode != RISING) {
-          wkup_pin = PWR_WAKEUP_PIN6_LOW;
-        }
+      if (mode != RISING) {
+        wkup_pin = PWR_WAKEUP_PIN6_LOW;
+      }
 #endif
-        break;
+    }
 #endif /* PWR_WAKEUP_PIN6 */
 #ifdef PWR_WAKEUP_PIN7
-      case SYS_WKUP7 :
-        wkup_pin = PWR_WAKEUP_PIN7;
-        break;
+    if (p == SYS_WKUP7) {
+      wkup_pin = PWR_WAKEUP_PIN7;
+    }
 #endif /* PWR_WAKEUP_PIN7 */
 #ifdef PWR_WAKEUP_PIN8
-      case SYS_WKUP8 :
-        wkup_pin = PWR_WAKEUP_PIN8;
-        break;
-#endif /* PWR_WAKEUP_PIN8 */
+    if (p == SYS_WKUP8) {
+      wkup_pin = PWR_WAKEUP_PIN8;
     }
+#endif /* PWR_WAKEUP_PIN8 */
     HAL_PWR_EnableWakeUpPin(wkup_pin);
   }
 }
