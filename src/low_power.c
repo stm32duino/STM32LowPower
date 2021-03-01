@@ -347,6 +347,11 @@ void LowPower_EnableWakeUpUart(serial_t *serial, void (*FuncPtr)(void))
   */
 WEAK void SystemClock_ConfigFromStop(void)
 {
+#if defined(__HAL_RCC_PWR_CLK_ENABLE)
+  /* Enable PWR clock, needed for example: voltage scaling */
+  __HAL_RCC_PWR_CLK_ENABLE();
+#endif
+
   SystemClock_Config();
 }
 
