@@ -33,7 +33,8 @@ void setup() {
   // Configure low power
   LowPower.begin();
   // Attach a wakeup interrupt on pin, calling repetitionsIncrease when the device is woken up
-  LowPower.attachInterruptWakeup(pin, repetitionsIncrease, RISING);
+  // Last parameter (LowPowerMode) should match with the low power state used: in this example LowPower.sleep()
+  LowPower.attachInterruptWakeup(pin, repetitionsIncrease, RISING, SLEEP_MODE);
 }
 
 void loop() {

@@ -12,7 +12,7 @@ Arduino library to support STM32 Low Power.
 **param** ms (optional): number of milliseconds before to exit the mode. The RTC is used in alarm mode to wakeup the chip in ms milliseconds.
 
 * **`void sleep(uint32_t ms)`**: enter in sleep mode
-**param** ms (optional): number of milliseconds before to exit the mode. he RTC is used in alarm mode to wakeup the chip in ms milliseconds.
+**param** ms (optional): number of milliseconds before to exit the mode. The RTC is used in alarm mode to wakeup the chip in ms milliseconds.
 
 * **`void deepSleep(uint32_t ms)`**: enter in deepSleep mode
 **param** ms (optional): number of milliseconds before to exit the mode. The RTC is used in alarm mode to wakeup the chip in ms milliseconds.
@@ -22,10 +22,11 @@ Arduino library to support STM32 Low Power.
 
 **Note: With [STM32RTC](https://github.com/stm32duino/STM32RTC) version lower than 1.1.0, the minimum number of milliseconds is 1000 ms.**
 
-* **`void attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode)`**: Enable GPIO pin in interrupt mode. If the pin is a wakeup pin, it is configured as wakeup source (see board documentation).  
+* **`void attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode, LP_Mode LowPowerMode)`**: Enable GPIO pin in interrupt mode. If the pin is a wakeup pin, it is configured as wakeup source (see board documentation).
 **param** pin: pin number  
 **param** callback: pointer to callback  
-**param** mode: interrupt mode (HIGH, LOW, RISING, FALLING or CHANGE)  
+**param** mode: interrupt mode (HIGH, LOW, RISING, FALLING or CHANGE)
+**param** LowPowerMode: Low power mode which will be used (IDLE_MODE, SLEEP_MODE, DEEP_SLEEP_MODE or SHUTDOWN_MODE). In case of SHUTDOWN_MODE only, Wakeup pin capability is activated.
 
 * **`void enableWakeupFrom(HardwareSerial *serial, voidFuncPtrVoid callback)`**: enable a UART peripheral in low power mode. See board documentation for low power mode compatibility.  
 **param** serial: pointer to a UART  
