@@ -119,6 +119,9 @@ void STM32LowPower::shutdown(uint32_t ms)
   * @param  pin:  pin number
   * @param  callback: pointer to callback function.
   * @param  mode: pin interrupt mode (HIGH, LOW, RISING, FALLING or CHANGE)
+  * @param  LowPowerMode: Low power mode which will be used
+  *         (IDLE_MODE, SLEEP_MODE, DEEP_SLEEP_MODE, SHUTDOWN_MODE)
+  *         In case of SHUTDOWN_MODE only, Wakeup pin capability is activated
   * @retval None
   */
 void STM32LowPower::attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode, LP_Mode LowPowerMode)
