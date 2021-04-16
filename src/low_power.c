@@ -339,7 +339,7 @@ void LowPower_EnableWakeUpUart(serial_t *serial, void (*FuncPtr)(void))
 }
 
 /**
-  * @brief  Configures system clock after wake-up from STOP
+  * @brief  Configures system clock and system IP clocks after wake-up from STOP
   * @note   Weaked function which can be redefined by user at the sketch level.
   *         By default, call 'SystemClock_Config()'.
   * @param  None
@@ -347,11 +347,7 @@ void LowPower_EnableWakeUpUart(serial_t *serial, void (*FuncPtr)(void))
   */
 WEAK void SystemClock_ConfigFromStop(void)
 {
-#if defined(__HAL_RCC_PWR_CLK_ENABLE)
-  /* Enable PWR clock, needed for example: voltage scaling */
-  __HAL_RCC_PWR_CLK_ENABLE();
-#endif
-
+  configIPClock();
   SystemClock_Config();
 }
 
