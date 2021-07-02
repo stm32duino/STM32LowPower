@@ -78,7 +78,7 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
 #if !defined(PWR_WAKEUP_PIN1_HIGH)
   UNUSED(mode);
 #endif
-  uint32_t wkup_pin;
+  uint32_t wkup_pin = 0;
   PinName p = digitalPinToPinName(pin);
   if (p != NC) {
 #ifdef PWR_WAKEUP_PIN1
@@ -151,7 +151,9 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
       wkup_pin = PWR_WAKEUP_PIN8;
     }
 #endif /* PWR_WAKEUP_PIN8 */
-    HAL_PWR_EnableWakeUpPin(wkup_pin);
+    if (IS_PWR_WAKEUP_PIN(wkup_pin)) {
+      HAL_PWR_EnableWakeUpPin(wkup_pin);
+    }
   }
 }
 
@@ -317,7 +319,7 @@ void LowPower_EnableWakeUpUart(serial_t *serial, void (*FuncPtr)(void))
   WakeUpSelection.WakeUpEvent = UART_WAKEUP_ON_READDATA_NONEMPTY;
   HAL_UARTEx_StopModeWakeUpSourceConfig(WakeUpUart, WakeUpSelection);
 
-  /* Enable the UART Wake UP from STOP1 mode Interrupt */
+  /* Enable the UART Wake UP from STOPx mode Interrupt */
   __HAL_UART_ENABLE_IT(WakeUpUart, UART_IT_WUF);
 #else
   UNUSED(serial);
