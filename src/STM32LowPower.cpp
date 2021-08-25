@@ -191,8 +191,8 @@ void STM32LowPower::programRtcWakeUp(uint32_t ms, LP_Mode lp_mode)
       break;
     default:
     case SHUTDOWN_MODE:
-#if defined(STM32L4xx) || defined(STM32L5xx)
-      // For shutdown mode LSE have to be used (STM32L4 or STM32L5 series only)
+#if defined(PWR_CR1_LPMS)
+      // For shutdown mode LSE have to be used
       clkSrc = STM32RTC::LSE_CLOCK;
 #else
       // LSE or LSI
