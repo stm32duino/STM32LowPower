@@ -20,15 +20,21 @@
 
 #include "Arduino.h"
 #include "low_power.h"
+#include "stm32yyxx_ll_pwr.h"
 
-#if defined(STM32_CORE_VERSION) && (STM32_CORE_VERSION  > 0x01090000) &&\
-    defined(HAL_PWR_MODULE_ENABLED) && !defined(HAL_PWR_MODULE_ONLY)
+#if defined(STM32_CORE_VERSION) && (STM32_CORE_VERSION  > 0x01090000) \
+ && defined(HAL_PWR_MODULE_ENABLED) && !defined(HAL_PWR_MODULE_ONLY)
+
+#if defined(HAL_UART_MODULE_ENABLED) && !defined(HAL_UART_MODULE_ONLY) \
+  && (defined(UART_IT_WUF) || defined(LPUART1_BASE))
+  #define UART_WKUP_SUPPORT
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if defined(UART_IT_WUF) && defined(HAL_UART_MODULE_ENABLED) && !defined(HAL_UART_MODULE_ONLY)
+#if defined(UART_WKUP_SUPPORT)
 /* Save UART handler for callback */
 static UART_HandleTypeDef *WakeUpUart = NULL;
 #endif
@@ -37,6 +43,11 @@ static void (*WakeUpUartCb)(void) = NULL;
 
 #if defined(PWR_FLAG_WUF)
 #define PWR_FLAG_WU PWR_FLAG_WUF
+#elif defined(PWR_WAKEUP_ALL_FLAG)
+#define PWR_FLAG_WU PWR_WAKEUP_ALL_FLAG
+#endif
+#if defined(PWR_FLAG_SBF)
+#define PWR_FLAG_SB PWR_FLAG_SBF
 #endif
 
 /**
@@ -82,7 +93,14 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
   PinName p = digitalPinToPinName(pin);
   if (p != NC) {
 #ifdef PWR_WAKEUP_PIN1
-    if (p == SYS_WKUP1) {
+    if ((p == SYS_WKUP1)
+#ifdef PWR_WAKEUP_PIN1_1
+        || (p == SYS_WKUP1_1)
+#endif
+#ifdef PWR_WAKEUP_PIN1_2
+        || (p == SYS_WKUP1_2)
+#endif
+       ) {
       wkup_pin = PWR_WAKEUP_PIN1;
 #ifdef PWR_WAKEUP_PIN1_HIGH
       if (mode != RISING) {
@@ -92,7 +110,14 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN1 */
 #ifdef PWR_WAKEUP_PIN2
-    if (p == SYS_WKUP2) {
+    if ((p == SYS_WKUP2)
+#ifdef PWR_WAKEUP_PIN2_1
+        || (p == SYS_WKUP2_1)
+#endif
+#ifdef PWR_WAKEUP_PIN2_2
+        || (p == SYS_WKUP2_2)
+#endif
+       ) {
       wkup_pin = PWR_WAKEUP_PIN2;
 #ifdef PWR_WAKEUP_PIN2_HIGH
       if (mode != RISING) {
@@ -102,7 +127,14 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN2 */
 #ifdef PWR_WAKEUP_PIN3
-    if (p == SYS_WKUP3) {
+    if ((p == SYS_WKUP3)
+#ifdef PWR_WAKEUP_PIN3_1
+        || (p == SYS_WKUP3_1)
+#endif
+#ifdef PWR_WAKEUP_PIN3_2
+        || (p == SYS_WKUP3_2)
+#endif
+       ) {
       wkup_pin = PWR_WAKEUP_PIN3;
 #ifdef PWR_WAKEUP_PIN3_HIGH
       if (mode != RISING) {
@@ -112,7 +144,14 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN3 */
 #ifdef PWR_WAKEUP_PIN4
-    if (p == SYS_WKUP4) {
+    if ((p == SYS_WKUP4)
+#ifdef PWR_WAKEUP_PIN4_1
+        || (p == SYS_WKUP4_1)
+#endif
+#ifdef PWR_WAKEUP_PIN4_2
+        || (p == SYS_WKUP4_2)
+#endif
+       ) {
       wkup_pin = PWR_WAKEUP_PIN4;
 #ifdef PWR_WAKEUP_PIN4_HIGH
       if (mode != RISING) {
@@ -122,7 +161,14 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN4 */
 #ifdef PWR_WAKEUP_PIN5
-    if (p == SYS_WKUP5) {
+    if ((p == SYS_WKUP5)
+#ifdef PWR_WAKEUP_PIN5_1
+        || (p == SYS_WKUP5_1)
+#endif
+#ifdef PWR_WAKEUP_PIN5_2
+        || (p == SYS_WKUP5_2)
+#endif
+       ) {
       wkup_pin = PWR_WAKEUP_PIN5;
 #ifdef PWR_WAKEUP_PIN5_HIGH
       if (mode != RISING) {
@@ -132,7 +178,14 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN5 */
 #ifdef PWR_WAKEUP_PIN6
-    if (p == SYS_WKUP6) {
+    if ((p == SYS_WKUP6)
+#ifdef PWR_WAKEUP_PIN6_1
+        || (p == SYS_WKUP6_1)
+#endif
+#ifdef PWR_WAKEUP_PIN6_2
+        || (p == SYS_WKUP6_2)
+#endif
+       ) {
       wkup_pin = PWR_WAKEUP_PIN6;
 #ifdef PWR_WAKEUP_PIN6_HIGH
       if (mode != RISING) {
@@ -142,12 +195,26 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN6 */
 #ifdef PWR_WAKEUP_PIN7
-    if (p == SYS_WKUP7) {
+    if ((p == SYS_WKUP7)
+#ifdef PWR_WAKEUP_PIN7_1
+        || (p == SYS_WKUP7_1)
+#endif
+#ifdef PWR_WAKEUP_PIN7_2
+        || (p == SYS_WKUP7_2)
+#endif
+       ) {
       wkup_pin = PWR_WAKEUP_PIN7;
     }
 #endif /* PWR_WAKEUP_PIN7 */
 #ifdef PWR_WAKEUP_PIN8
-    if (p == SYS_WKUP8) {
+    if ((p == SYS_WKUP8)
+#ifdef PWR_WAKEUP_PIN8_1
+        || (p == SYS_WKUP8_1)
+#endif
+#ifdef PWR_WAKEUP_PIN8_2
+        || (p == SYS_WKUP8_2)
+#endif
+       ) {
       wkup_pin = PWR_WAKEUP_PIN8;
     }
 #endif /* PWR_WAKEUP_PIN8 */
@@ -191,7 +258,7 @@ void LowPower_stop(serial_t *obj)
 {
   __disable_irq();
 
-#if defined(UART_IT_WUF) && defined(HAL_UART_MODULE_ENABLED) && !defined(HAL_UART_MODULE_ONLY)
+#if defined(UART_WKUP_SUPPORT)
   if (WakeUpUart != NULL) {
     HAL_UARTEx_EnableStopMode(WakeUpUart);
   }
@@ -200,6 +267,10 @@ void LowPower_stop(serial_t *obj)
 #if defined(PWR_CR_ULP)
   /* Enable Ultra low power mode */
   HAL_PWREx_EnableUltraLowPower();
+#endif
+#if defined(PWR_CR1_ULPMEN) || defined(PWR_CR3_ULPMEN)
+  /* Enable Ultra low power mode */
+  HAL_PWREx_EnableUltraLowPowerMode();
 #endif
 #if defined(PWR_CR_FWU)
   /* Enable the fast wake up from Ultra low power mode */
@@ -215,10 +286,15 @@ void LowPower_stop(serial_t *obj)
 #endif
 
   /* Enter Stop mode */
-#if defined(PWR_CPUCR_RETDS_CD) || defined(PWR_CR1_LPMS_STOP2) ||\
-    defined(PWR_LOWPOWERMODE_STOP2)
-
-  if ((WakeUpUart == NULL) || (WakeUpUart->Instance == (USART_TypeDef *)LPUART1_BASE)) {
+#if defined(UART_WKUP_SUPPORT) && (defined(PWR_CPUCR_RETDS_CD) \
+ || defined(PWR_CR1_LPMS_STOP2) || defined(PWR_LOWPOWERMODE_STOP2) \
+ || defined(LL_PWR_STOP2_MODE))
+  if ((WakeUpUart == NULL)
+      || (WakeUpUart->Instance == (USART_TypeDef *)LPUART1_BASE)
+#ifdef LPUART2_BASE
+      || (WakeUpUart->Instance == (USART_TypeDef *)LPUART2_BASE)
+#endif
+     ) {
     // STM32L4xx supports STOP2 mode which halves consumption
     HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
   } else
@@ -229,7 +305,7 @@ void LowPower_stop(serial_t *obj)
 
   /* Exit Stop mode reset clocks */
   SystemClock_ConfigFromStop();
-#if defined(UART_IT_WUF) && defined(HAL_UART_MODULE_ENABLED) && !defined(HAL_UART_MODULE_ONLY)
+#if defined(UART_WKUP_SUPPORT)
   if (WakeUpUart != NULL) {
     /* In case of WakeUp from UART, reset its clock source to HSI */
     uart_config_lowpower(obj);
@@ -277,7 +353,7 @@ void LowPower_standby()
 void LowPower_shutdown()
 {
   __disable_irq();
-#if defined(PWR_LOWPOWERMODE_SHUTDOWN) || defined(PWR_CR1_LPMS_SHUTDOWN)
+#if defined(PWR_CR1_LPMS)
   /* LSE must be on to use shutdown mode */
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == SET) {
     HAL_PWREx_EnterSHUTDOWNMode();
@@ -299,7 +375,8 @@ void LowPower_shutdown()
   */
 void LowPower_EnableWakeUpUart(serial_t *serial, void (*FuncPtr)(void))
 {
-#if defined(UART_IT_WUF) && defined(HAL_UART_MODULE_ENABLED) && !defined(HAL_UART_MODULE_ONLY)
+#if defined(UART_WKUP_SUPPORT)
+#ifdef IS_UART_WAKEUP_SELECTION
   UART_WakeUpTypeDef WakeUpSelection;
   if (serial == NULL) {
     return;
@@ -318,9 +395,11 @@ void LowPower_EnableWakeUpUart(serial_t *serial, void (*FuncPtr)(void))
    */
   WakeUpSelection.WakeUpEvent = UART_WAKEUP_ON_READDATA_NONEMPTY;
   HAL_UARTEx_StopModeWakeUpSourceConfig(WakeUpUart, WakeUpSelection);
-
+#endif
+#if defined(UART_IT_WUF)
   /* Enable the UART Wake UP from STOPx mode Interrupt */
   __HAL_UART_ENABLE_IT(WakeUpUart, UART_IT_WUF);
+#endif
 #else
   UNUSED(serial);
 #endif
