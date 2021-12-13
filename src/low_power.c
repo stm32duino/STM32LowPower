@@ -295,6 +295,10 @@ void LowPower_stop(serial_t *obj)
       || (WakeUpUart->Instance == (USART_TypeDef *)LPUART2_BASE)
 #endif
      ) {
+#if defined(PWR_CR1_RRSTP)
+    // STM32L4+ must keep SRAM3 content when entering STOP2 lowpower mode
+    HAL_PWREx_EnableSRAM3ContentRetention();
+#endif /* PWR_CR1_RRSTP */
     // STM32L4xx supports STOP2 mode which halves consumption
     HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
   } else
