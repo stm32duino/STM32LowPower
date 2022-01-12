@@ -82,7 +82,12 @@ void STM32LowPower::sleep(uint32_t ms)
   if ((ms != 0) || _rtc_wakeup) {
     programRtcWakeUp(ms, SLEEP_MODE);
   }
+#if defined(PWR_LOWPOWERREGULATOR_ON)
   LowPower_sleep(PWR_LOWPOWERREGULATOR_ON);
+#else
+  LowPower_sleep(PWR_MAINREGULATOR_ON);
+#endif
+
 }
 
 /**

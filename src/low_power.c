@@ -60,8 +60,11 @@ void LowPower_init()
   /* Enable Power Clock */
   __HAL_RCC_PWR_CLK_ENABLE();
 #endif
+
+#if defined(PWR_CR_DBP) || defined(PWR_CR1_DBP) || defined(PWR_DBPR_DBP)
   /* Allow access to Backup domain */
   HAL_PWR_EnableBkUpAccess();
+#endif
 
 #ifdef __HAL_RCC_WAKEUPSTOP_CLK_CONFIG
   /* Ensure that HSI is wake-up system clock */
@@ -385,7 +388,8 @@ void SystemClock_Decrease(void)
 void LowPower_sleep(uint32_t regulator)
 {
 
-#if defined(PWR_CSR_REGLPF) || defined(PWR_SR2_REGLPF)
+#if defined(PWR_LOWPOWERREGULATOR_ON) && \
+    (defined(PWR_CSR_REGLPF) || defined(PWR_SR2_REGLPF))
   // When LowPower regulator sleep mode is used, it is necessary to decrease CPU Frequency
   if (regulator == PWR_LOWPOWERREGULATOR_ON) {
     SystemClock_Decrease();
@@ -402,7 +406,8 @@ void LowPower_sleep(uint32_t regulator)
   /* Enter Sleep Mode , wake up is done once User push-button is pressed */
   HAL_PWR_EnterSLEEPMode(regulator, PWR_SLEEPENTRY_WFI);
 
-#if defined(PWR_CSR_REGLPF) || defined(PWR_SR2_REGLPF)
+#if defined(PWR_LOWPOWERREGULATOR_ON) && \
+    (defined(PWR_CSR_REGLPF) || defined(PWR_SR2_REGLPF))
   // In case of LowPower Regulator used for sleep, restore Main regulator on exit
   if (regulator == PWR_LOWPOWERREGULATOR_ON) {
 #if defined(__HAL_RCC_PWR_CLK_ENABLE)
@@ -492,7 +497,11 @@ void LowPower_stop(serial_t *obj)
   } else
 #endif
   {
+#if defined(PWR_LOWPOWERREGULATOR_ON)
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+#else
+    HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
+#endif
   }
 
   /* Exit Stop mode reset clocks */
