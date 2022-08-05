@@ -241,6 +241,16 @@ void LowPower_sleep(uint32_t regulator)
   /* Enter Sleep Mode , wake up is done once User push-button is pressed */
   HAL_PWR_EnterSLEEPMode(regulator, PWR_SLEEPENTRY_WFI);
 
+#if defined(PWR_CSR_REGLPF) || defined(PWR_SR2_REGLPF)
+  // In case of LowPower Regulator used for sleep, restore Main regulator on exit
+  if (regulator == PWR_LOWPOWERREGULATOR_ON) {
+#if defined(__HAL_RCC_PWR_CLK_ENABLE)
+    __HAL_RCC_PWR_CLK_ENABLE();
+#endif
+    HAL_PWREx_DisableLowPowerRunMode();
+  }
+#endif
+
   /* Resume Tick interrupt if disabled prior to SLEEP mode entry */
   HAL_ResumeTick();
 
