@@ -20,7 +20,7 @@ volatile int repetitions = 1;
 
 // Pin used to trigger a wakeup
 #ifndef USER_BTN
-#define USER_BTN SYS_WKUP1
+#define USER_BTN pinNametoDigitalPin(SYS_WKUP1)
 #endif
 
 const int pin = USER_BTN;
