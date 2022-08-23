@@ -8,6 +8,9 @@
   battery life significantly.
 
   In this sketch, pressing a pushbutton attached to pin will wake up the board.
+  Warning: depending on boards, and its button hardware implementation,
+           it may be required to adapt INPUT_PULLUP/INPUT_PULLDOWN parameter
+           in pinMode(pin, XXX)
 
   This example code is in the public domain.
 */
@@ -28,6 +31,7 @@ const int pin = USER_BTN;
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   // Set pin as INPUT_PULLUP to avoid spurious wakeup
+  // Warning depending on boards, INPUT_PULLDOWN may be required instead
   pinMode(pin, INPUT_PULLUP);
 
   // Configure low power
