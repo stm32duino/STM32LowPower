@@ -224,6 +224,157 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
   }
 }
 
+#if defined(PWR_CSR_REGLPF)
+/**
+  * @brief  For STM32L0 and STM32L1, running in LowPower Sleep requires
+  *         to slow down frequency to MSI range1.
+  * @retval None
+  */
+void SystemClock_Decrease(void)
+{
+  RCC_OscInitTypeDef RCC_OscInitStruct = {};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {};
+
+  /** Configure the main internal regulator output voltage
+  */
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.MSIState = RCC_MSI_ON;
+  RCC_OscInitStruct.MSICalibrationValue = 0;
+  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_1;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+    Error_Handler();
+  }
+
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
+    Error_Handler();
+  }
+}
+
+#elif defined(STM32L4xx) || defined(STM32L5xx) || defined(STM32WBxx) || defined(STM32WLxx)
+/**
+  * @brief  For STM32L4, STM32L5, STM32WB and STM32WL
+  *         running in LowPower Sleep requires to slow down frequency to 2MHz max.
+  * @retval None
+  */
+void SystemClock_Decrease(void)
+{
+  RCC_OscInitTypeDef RCC_OscInitStruct = {};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {};
+
+  /** Configure the main internal regulator output voltage
+  */
+#if defined(STM32L4xx) || defined(STM32WBxx)
+  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
+#elif defined(STM32L5xx) || defined(STM32WLxx)
+  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE2) != HAL_OK)
+#endif
+  {
+    Error_Handler();
+  }
+
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.MSIState = RCC_MSI_ON;
+  RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_5;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+    Error_Handler();
+  }
+
+  /** Initializes the CPU and buses clocks
+  */
+#if defined(STM32WBxx)
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK4 | RCC_CLOCKTYPE_HCLK2
+                                | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.AHBCLK2Divider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLK4Divider = RCC_SYSCLK_DIV1;
+#elif defined(STM32WLxx)
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK3 | RCC_CLOCKTYPE_HCLK
+                                | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1
+                                | RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.AHBCLK3Divider = RCC_SYSCLK_DIV1;
+#elif defined(STM32L4xx)
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+#endif
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
+    Error_Handler();
+  }
+}
+
+#elif defined(STM32G0xx) || defined(STM32G4xx)
+/**
+  * @brief  For STM32G0 and STM32G4
+  *         running in LowPower Sleep requires to slow down frequency to 2MHz max.
+  * @retval None
+  */
+void SystemClock_Decrease(void)
+{
+  RCC_OscInitTypeDef RCC_OscInitStruct = {};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {};
+
+  /** Configure the main internal regulator output voltage
+  */
+  HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+#if defined(STM32G0xx)
+  RCC_OscInitStruct.HSIDiv = RCC_HSI_DIV1;
+#endif
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+    Error_Handler();
+  }
+
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
+#if defined(STM32G4xx)
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+#elif defined(STM32G0xx)
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                | RCC_CLOCKTYPE_PCLK1;
+#endif
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV8;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
+    Error_Handler();
+  }
+}
+#endif
+
 /**
   * @brief  Enable the sleep mode.
   * @param  None
@@ -231,6 +382,14 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
   */
 void LowPower_sleep(uint32_t regulator)
 {
+
+#if defined(PWR_CSR_REGLPF) || defined(PWR_SR2_REGLPF)
+  // When LowPower regulator sleep mode is used, it is necessary to decrease CPU Frequency
+  if (regulator == PWR_LOWPOWERREGULATOR_ON) {
+    SystemClock_Decrease();
+  }
+#endif
+
   /*
    * Suspend Tick increment to prevent wakeup by Systick interrupt.
    * Otherwise the Systick interrupt will wake up the device within
@@ -240,6 +399,19 @@ void LowPower_sleep(uint32_t regulator)
 
   /* Enter Sleep Mode , wake up is done once User push-button is pressed */
   HAL_PWR_EnterSLEEPMode(regulator, PWR_SLEEPENTRY_WFI);
+
+#if defined(PWR_CSR_REGLPF) || defined(PWR_SR2_REGLPF)
+  // In case of LowPower Regulator used for sleep, restore Main regulator on exit
+  if (regulator == PWR_LOWPOWERREGULATOR_ON) {
+#if defined(__HAL_RCC_PWR_CLK_ENABLE)
+    __HAL_RCC_PWR_CLK_ENABLE();
+#endif
+    HAL_PWREx_DisableLowPowerRunMode();
+
+    // Restore systemClock which has been decreased by SystemClock_Decrease()
+    SystemClock_Config();
+  }
+#endif
 
   /* Resume Tick interrupt if disabled prior to SLEEP mode entry */
   HAL_ResumeTick();
