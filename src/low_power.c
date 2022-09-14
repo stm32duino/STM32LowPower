@@ -508,6 +508,15 @@ void LowPower_standby()
 {
   __disable_irq();
 
+  /* Clear wakeup flags */
+#if defined(PWR_FLAG_WU)
+  __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+#elif defined(PWR_CPUCR_CSSF)
+  __HAL_PWR_CLEAR_FLAG(PWR_CPUCR_CSSF);
+#elif defined(PWR_MPUCR_CSSF)
+  __HAL_PWR_CLEAR_FLAG(PWR_MPUCR_CSSF);
+#endif
+
 #if defined(PWR_CR_ULP)
   /* Enable Ultra low power mode */
   HAL_PWREx_EnableUltraLowPower();
@@ -529,6 +538,16 @@ void LowPower_standby()
 void LowPower_shutdown()
 {
   __disable_irq();
+
+  /* Clear wakeup flags */
+#if defined(PWR_FLAG_WU)
+  __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+#elif defined(PWR_CPUCR_CSSF)
+  __HAL_PWR_CLEAR_FLAG(PWR_CPUCR_CSSF);
+#elif defined(PWR_MPUCR_CSSF)
+  __HAL_PWR_CLEAR_FLAG(PWR_MPUCR_CSSF);
+#endif
+
 #if defined(PWR_CR1_LPMS)
   /* LSE must be on to use shutdown mode */
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == SET) {
