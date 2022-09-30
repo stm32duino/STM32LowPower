@@ -548,7 +548,7 @@ void LowPower_shutdown()
   __HAL_PWR_CLEAR_FLAG(PWR_MPUCR_CSSF);
 #endif
 
-#if defined(PWR_CR1_LPMS)
+#if defined(PWR_LOWPOWERMODE_SHUTDOWN) || defined(PWR_CR1_LPMS_SHUTDOWN) || defined(LL_PWR_SHUTDOWN_MODE)
   /* LSE must be on to use shutdown mode */
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == SET) {
     HAL_PWREx_EnterSHUTDOWNMode();
