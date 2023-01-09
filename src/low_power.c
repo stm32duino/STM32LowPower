@@ -459,7 +459,21 @@ void LowPower_stop(serial_t *obj)
   __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_HSI);
 #endif
 #endif
-
+#if defined(STM32WBxx)
+  /* Set low-power mode of CPU2 */
+  /* Note: Typically, action performed by CPU2 on a dual core application.
+           Since this example is single core, perform it by CPU1. */
+  /* Note: On STM32WB, both CPU1 and CPU2 must be in low-power mode
+           to set the entire System in low-power mode, corresponding to
+           the deepest low-power mode possible.
+           For example, CPU1 in Stop2 mode and CPU2 in Shutdown mode
+           will make system enter in Stop2 mode. */
+#if defined(LL_PWR_MODE_STOP2)
+  LL_C2_PWR_SetPowerMode(LL_PWR_MODE_STOP2);
+#else
+  LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+#endif
+#endif
   /* Enter Stop mode */
 #if defined(UART_WKUP_SUPPORT) && (defined(PWR_CPUCR_RETDS_CD) \
  || defined(PWR_CR1_LPMS_STOP2) || defined(PWR_LOWPOWERMODE_STOP2) \
@@ -528,7 +542,17 @@ void LowPower_standby()
   /* Enable the fast wake up from Ultra low power mode */
   HAL_PWREx_EnableFastWakeUp();
 #endif
-
+#if defined(STM32WBxx)
+  /* Set low-power mode of CPU2 */
+  /* Note: Typically, action performed by CPU2 on a dual core application.
+           Since this example is single core, perform it by CPU1. */
+  /* Note: On STM32WB, both CPU1 and CPU2 must be in low-power mode
+           to set the entire System in low-power mode, corresponding to
+           the deepest low-power mode possible.
+           For example, CPU1 in Stop2 mode and CPU2 in Shutdown mode
+           will make system enter in Stop2 mode. */
+  LL_C2_PWR_SetPowerMode(LL_PWR_MODE_STANDBY);
+#endif
   HAL_PWR_EnterSTANDBYMode();
 }
 
@@ -550,7 +574,17 @@ void LowPower_shutdown()
 #elif defined(PWR_MPUCR_CSSF)
   __HAL_PWR_CLEAR_FLAG(PWR_MPUCR_CSSF);
 #endif
-
+#if defined(STM32WBxx)
+  /* Set low-power mode of CPU2 */
+  /* Note: Typically, action performed by CPU2 on a dual core application.
+           Since this example is single core, perform it by CPU1. */
+  /* Note: On STM32WB, both CPU1 and CPU2 must be in low-power mode
+           to set the entire System in low-power mode, corresponding to
+           the deepest low-power mode possible.
+           For example, CPU1 in Stop2 mode and CPU2 in Shutdown mode
+           will make system enter in Stop2 mode. */
+  LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+#endif
 #if defined(PWR_LOWPOWERMODE_SHUTDOWN) || defined(PWR_CR1_LPMS_SHUTDOWN) || defined(LL_PWR_SHUTDOWN_MODE)
   /* LSE must be on to use shutdown mode */
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == SET) {
