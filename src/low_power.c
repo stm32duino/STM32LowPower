@@ -278,6 +278,8 @@ void SystemClock_Decrease(void)
 
   /** Configure the main internal regulator output voltage
   */
+
+#if (defined(STM32WBxx) && defined(PWR_CR1_VOS)) || !defined(STM32WBxx)
 #if defined(STM32L4xx) || defined(STM32WBxx)
   if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
 #elif defined(STM32L5xx) || defined(STM32WLxx)
@@ -286,6 +288,7 @@ void SystemClock_Decrease(void)
   {
     Error_Handler();
   }
+#endif
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
