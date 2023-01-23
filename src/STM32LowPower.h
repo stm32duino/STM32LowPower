@@ -39,9 +39,7 @@
 
 #include <Arduino.h>
 
-#if defined(STM32_CORE_VERSION) && (STM32_CORE_VERSION  > 0x01090000)
-  #include "low_power.h"
-#endif
+#include "low_power.h"
 
 // Check if PWR HAL enable in variants/board_name/stm32yzxx_hal_conf.h
 #ifndef HAL_PWR_MODULE_ENABLED

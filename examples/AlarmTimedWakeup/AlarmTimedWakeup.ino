@@ -17,14 +17,9 @@
 /* Get the rtc object */
 STM32RTC& rtc = STM32RTC::getInstance();
 
-#if defined(STM32_RTC_VERSION) && (STM32_RTC_VERSION  >= 0x01010000)
 /* Change this value to set alarm match offset in millisecond */
 /* Note that STM32F1xx does not manage subsecond only second */
 static uint32_t atime = 567;
-#else
-// Time in second between blink
-static uint32_t atime = 1;
-#endif
 
 // Declare it volatile since it's incremented inside an interrupt
 volatile int alarmMatch_counter = 0;
@@ -73,7 +68,6 @@ void alarmMatch(void* data)
   // This function will be called once on device wakeup
   // You can do some little operations here (like changing variables which will be used in the loop)
   // Remember to avoid calling delay() and long running functions since this functions executes in interrupt context
-#if defined(STM32_RTC_VERSION) && (STM32_RTC_VERSION  >= 0x01010000)
   uint32_t epoc;
   uint32_t epoc_ms;
   uint32_t sec = 0;
@@ -103,16 +97,4 @@ void alarmMatch(void* data)
 #endif
   alarmMatch_counter++;
   rtc.setAlarmEpoch(epoc + sec, STM32RTC::MATCH_SS, epoc_ms);
-#else
-  uint32_t sec = 1;
-  if(data != NULL) {
-    sec = *(uint32_t*)data;
-    // Minimum is 1 second
-    if (sec == 0){
-      sec = 1;
-    }
-  }
-  alarmMatch_counter++;
-  rtc.setAlarmEpoch( rtc.getEpoch() + sec);
-#endif
 }

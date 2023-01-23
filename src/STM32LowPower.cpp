@@ -206,7 +206,6 @@ void STM32LowPower::programRtcWakeUp(uint32_t ms, LP_Mode lp_mode)
     // Convert millisecond to second
     sec = ms / 1000;
 
-#if defined(STM32_RTC_VERSION) && (STM32_RTC_VERSION  >= 0x01010000)
     uint32_t epoc_ms;
     ms = ms % 1000;
     epoc = rtc.getEpoch(&epoc_ms);
@@ -219,14 +218,5 @@ void STM32LowPower::programRtcWakeUp(uint32_t ms, LP_Mode lp_mode)
     }
 
     rtc.setAlarmEpoch(epoc + sec, STM32RTC::MATCH_DHHMMSS, epoc_ms);
-#else
-    // Minimum is 1 second
-    if (sec == 0) {
-      sec = 1;
-    }
-    epoc = rtc.getEpoch();
-
-    rtc.setAlarmEpoch(epoc + sec);
-#endif
   }
 }

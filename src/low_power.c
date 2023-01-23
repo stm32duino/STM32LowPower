@@ -22,8 +22,7 @@
 #include "low_power.h"
 #include "stm32yyxx_ll_pwr.h"
 
-#if defined(STM32_CORE_VERSION) && (STM32_CORE_VERSION  > 0x01090000) \
- && defined(HAL_PWR_MODULE_ENABLED) && !defined(HAL_PWR_MODULE_ONLY)
+#if defined(HAL_PWR_MODULE_ENABLED) && !defined(HAL_PWR_MODULE_ONLY)
 
 #if defined(HAL_UART_MODULE_ENABLED) && !defined(HAL_UART_MODULE_ONLY) \
   && (defined(UART_IT_WUF) || defined(LPUART1_BASE))
