@@ -181,8 +181,6 @@ void STM32LowPower::enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback, void *
   */
 void STM32LowPower::programRtcWakeUp(uint32_t ms, LP_Mode lp_mode)
 {
-  uint32_t epoc;
-  uint32_t sec;
   STM32RTC &rtc = STM32RTC::getInstance();
   STM32RTC::Source_Clock clkSrc = rtc.getClockSource();
 
@@ -207,21 +205,108 @@ void STM32LowPower::programRtcWakeUp(uint32_t ms, LP_Mode lp_mode)
   }
   rtc.configForLowPower(clkSrc);
 
+  setAlarmTime(ms, rtc);
+}
+
+static bool isLeapYear(uint8_t year2k)
+{
+  int year = year2k + 2000;
+
+  // if year not divisible by 4 - not a leap year
+  // else if year divisible by 4 and not by 100 - a leap year
+  // else if year divisible by 400 - a leap year
+  return (year % 4 != 0) ? false : (year % 100 != 0) ? true : year % 400 == 0;
+}
+
+void STM32LowPower::setAlarmTime(uint32_t ms, STM32RTC &rtc)
+{
   if (ms != 0) {
-    // Convert millisecond to second
-    sec = ms / 1000;
+    uint16_t subSecondsToAdd = ms % 1000;
 
-    uint32_t epoc_ms;
-    ms = ms % 1000;
-    epoc = rtc.getEpoch(&epoc_ms);
+    ms = ms / 1000;
+    uint8_t daysToAdd = ms / 86400;
+    uint8_t hoursToAdd = (ms - daysToAdd * 86400) / 3600;
+    uint8_t minutesToAdd = (ms - daysToAdd * 86400 - hoursToAdd * 3600) / 60;
+    uint8_t secondsToAdd = (ms - daysToAdd * 86400 - hoursToAdd * 3600 - minutesToAdd * 60);
 
-    //Update epoch_ms - might need to add a second to epoch
-    epoc_ms += ms;
-    if (epoc_ms >= 1000) {
-      sec ++;
-      epoc_ms -= 1000;
+    uint8_t hrCurrent, minCurrent, secCurrent;
+    uint32_t subSecondsCurrent;
+    STM32RTC::AM_PM period;
+    rtc.getTime(&hrCurrent, &minCurrent, &secCurrent, &subSecondsCurrent, &period);
+
+    uint8_t weekDay, currentDay, currentMonth, currentYear;
+    rtc.getDate(&weekDay, &currentDay, &currentMonth, &currentYear);
+
+    uint32_t ss = subSecondsCurrent + subSecondsToAdd;
+    if (ss >= 1000) {
+      ss -= 1000;
+      secondsToAdd++;
     }
 
-    rtc.setAlarmEpoch(epoc + sec, STM32RTC::MATCH_DHHMMSS, epoc_ms);
+    if (secondsToAdd >= 60) {
+      secondsToAdd = 0;
+      minutesToAdd++;
+    }
+    uint8_t s = secCurrent + secondsToAdd;
+    if (s >= 60) {
+      s -= 60;
+      minutesToAdd++;
+    }
+
+    if (minutesToAdd >= 60) {
+      minutesToAdd -= 60;
+      hoursToAdd++;
+    }
+    uint8_t m = minCurrent + minutesToAdd;
+    if (m >= 60) {
+      m -= 60;
+      hoursToAdd++;
+    }
+
+    if (hoursToAdd >= 24) {
+      hoursToAdd -= 24;
+      daysToAdd++;
+    }
+    uint8_t h = hrCurrent + hoursToAdd;
+    if (rtc._format == STM32RTC::Hour_Format::HOUR_12) {
+      if (h >= 24) {
+        h -= 24;
+        daysToAdd++;
+      } else if (h >= 12) {
+        if (period == STM32RTC::AM_PM::AM) {
+          period = STM32RTC::AM_PM::PM;
+        } else {
+          period = STM32RTC::AM_PM::AM;
+          daysToAdd++;
+        }
+
+        if (h > 12) {
+          h -= 12;
+        }
+      }
+    } else if (h >= 24) {
+      h -= 24;
+      daysToAdd++;
+    }
+
+    // numbers of days in each month (february is calculated based on leap year)
+    static uint8_t daysInMonths[] = {31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    uint8_t endDay;
+    if (currentMonth == 2) {
+      endDay = isLeapYear(currentYear) ? 29 : 28;
+    } else {
+      endDay = daysInMonths[currentMonth];
+    }
+
+    uint8_t d = currentDay + daysToAdd;
+    if (d > endDay) {
+      d -= endDay;
+    }
+
+    // month-year overflow isn't handled because its not supported by RTC's alarm
+
+    rtc.setAlarmTime(h, m, s, ss, period);
+    rtc.setAlarmDay(d);
+    rtc.enableAlarm(STM32RTC::Alarm_Match::MATCH_DHHMMSS);
   }
 }
