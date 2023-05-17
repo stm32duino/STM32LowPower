@@ -53,7 +53,7 @@ HardwareSerial used as Wakeup source will configure it to use HSI clock source e
 
 RTC used as Wakeup source will configure it to use LSE clock source even if another RTC clock source is selected.
 
-The board will restart when exit the deepSleep or shutdown mode.  
+The board will restart when exit shutdown mode.
 
 ## Hardware state
 
