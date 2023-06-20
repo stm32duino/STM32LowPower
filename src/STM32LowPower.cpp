@@ -295,7 +295,7 @@ void STM32LowPower::setAlarmTime(uint32_t ms, STM32RTC &rtc)
     if (currentMonth == 2) {
       endDay = isLeapYear(currentYear) ? 29 : 28;
     } else {
-      endDay = daysInMonths[currentMonth];
+      endDay = daysInMonths[currentMonth - 1];
     }
 
     uint8_t d = currentDay + daysToAdd;
