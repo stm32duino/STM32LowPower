@@ -51,7 +51,7 @@ enable an I2C peripheral in low power mode. See board documentation for low powe
 
 HardwareSerial used as Wakeup source will configure it to use HSI clock source even if another peripheral clock is configured.
 
-RTC used as Wakeup source will configure it to use LSE clock source even if another RTC clock source is selected.
+RTC used as Wakeup source requires to have LSE or LSI as clock source. If one of them is used nothing is changed else it will configure it to use LSI clock source. One exception exists when `SHUTDOWN_MODE` is requested and `PWR_CR1_LPMS` is defined, in that case LSE is used.
 
 The board will restart when exit shutdown mode.
 
