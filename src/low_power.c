@@ -478,6 +478,13 @@ void LowPower_stop(serial_t *obj)
   LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
 #endif
 #endif
+  /*
+   * Suspend Tick increment to prevent wakeup by Systick interrupt.
+   * Otherwise the Systick interrupt will wake up the device within
+   * 1ms (HAL time base)
+   */
+  HAL_SuspendTick();
+
   /* Enter Stop mode */
 #if defined(UART_WKUP_SUPPORT) && (defined(PWR_CPUCR_RETDS_CD) \
  || defined(PWR_CR1_LPMS_STOP2) || defined(PWR_LOWPOWERMODE_STOP2) \
@@ -516,6 +523,9 @@ void LowPower_stop(serial_t *obj)
   UNUSED(obj);
 #endif
   __enable_irq();
+
+  /* Resume Tick interrupt if disabled prior to STOP mode entry */
+  HAL_ResumeTick();
 
   HAL_Delay(10);
 
