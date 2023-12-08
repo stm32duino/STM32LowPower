@@ -567,10 +567,10 @@ void LowPower_standby()
 /**
   * @brief  Enable the shutdown mode.The board reset when leaves this mode.
   *         If shutdown mode not available, use standby mode instead.
-  * @param  None
+  * @param  boolean true if RTC is configured, in that case LSE is required
   * @retval None
   */
-void LowPower_shutdown()
+void LowPower_shutdown(bool isRTC)
 {
   __disable_irq();
 
@@ -593,11 +593,13 @@ void LowPower_shutdown()
            will make system enter in Stop2 mode. */
   LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
 #endif
-#if defined(PWR_LOWPOWERMODE_SHUTDOWN) || defined(PWR_CR1_LPMS_SHUTDOWN) || defined(LL_PWR_SHUTDOWN_MODE)
-  /* LSE must be on to use shutdown mode */
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == SET) {
+#if defined(PWR_CR1_LPMS)
+  /* LSE must be on to use shutdown mode within RTC else fallback to standby */
+  if ((!isRTC) || (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == SET)) {
     HAL_PWREx_EnterSHUTDOWNMode();
   } else
+#else
+  UNUSED(isRTC);
 #endif
   {
     LowPower_standby();
