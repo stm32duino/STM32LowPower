@@ -115,7 +115,9 @@ void STM32LowPower::shutdown(uint32_t ms)
   if ((ms != 0) || _rtc_wakeup) {
     programRtcWakeUp(ms, SHUTDOWN_MODE);
   }
-  LowPower_shutdown();
+  /* Get the rtc object to know if it is configured */
+  STM32RTC &rtc = STM32RTC::getInstance();
+  LowPower_shutdown(rtc.isConfigured());
 }
 
 /**

@@ -58,7 +58,7 @@ void LowPower_EnableWakeUpUart(serial_t *serial, void (*FuncPtr)(void));
 void LowPower_sleep(uint32_t regulator);
 void LowPower_stop(serial_t *obj);
 void LowPower_standby();
-void LowPower_shutdown();
+void LowPower_shutdown(bool isRTC);
 /* Weaked function */
 void SystemClock_ConfigFromStop(void);
 #ifdef __cplusplus

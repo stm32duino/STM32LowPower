@@ -21,7 +21,8 @@ Arduino library to support STM32 Low Power.
 * **`void shutdown(uint32_t ms)`**: enter in shutdown mode
 **param** ms (optional): number of milliseconds before to exit the mode. The RTC is used in alarm mode to wakeup the board in ms milliseconds.
 
-**Note: With [STM32RTC](https://github.com/stm32duino/STM32RTC) version lower than 1.1.0, the minimum number of milliseconds is 1000 ms.**
+> [!Note]
+> With [STM32RTC](https://github.com/stm32duino/STM32RTC) version lower than 1.1.0, the minimum number of milliseconds is 1000 ms.**
 
 * **`void attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode, LP_Mode LowPowerMode)`**: Enable GPIO pin in interrupt mode. If the pin is a wakeup pin, it is configured as wakeup source (see board documentation).
 **param** pin: pin number  
@@ -49,11 +50,12 @@ enable an I2C peripheral in low power mode. See board documentation for low powe
 
 `attachInterruptWakeup()` or `enableWakeupFrom()` functions should be called before `idle()`, `sleep()`, `deepSleep()` or `shutdown()` functions.  
 
-HardwareSerial used as Wakeup source will configure it to use HSI clock source even if another peripheral clock is configured.
-
-RTC used as Wakeup source requires to have LSE or LSI as clock source. If one of them is used nothing is changed else it will configure it to use LSI clock source. One exception exists when `SHUTDOWN_MODE` is requested and `PWR_CR1_LPMS` is defined, in that case LSE is used.
-
-The board will restart when exit shutdown mode.
+> [!Important]
+> * HardwareSerial used as Wakeup source will configure it to use HSI clock source even if another peripheral clock is configured.
+>
+> * RTC used as Wakeup source requires to have LSE or LSI as clock source. If one of them is used nothing is changed else it will configure it to use LSI clock source. One exception exists when `SHUTDOWN_MODE` is requested and `PWR_CR1_LPMS` is defined, in that case LSE is required. So, if the board does not have LSE, it will fail.
+>
+> * The board will restart when exit shutdown mode.
 
 ## Hardware state
 
