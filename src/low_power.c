@@ -593,7 +593,7 @@ void LowPower_shutdown(bool isRTC)
            will make system enter in Stop2 mode. */
   LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
 #endif
-#if defined(PWR_CR1_LPMS)
+#if defined(LL_PWR_SHUTDOWN_MODE) || defined(LL_PWR_MODE_SHUTDOWN)
   /* LSE must be on to use shutdown mode within RTC else fallback to standby */
   if ((!isRTC) || (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == SET)) {
     HAL_PWREx_EnterSHUTDOWNMode();
