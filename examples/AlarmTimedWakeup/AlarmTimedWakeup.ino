@@ -69,11 +69,13 @@ void loop() {
   Serial.print("Alarm Match: ");
   Serial.print(alarmMatch_counter);
   Serial.println(" times.");
-  Serial.flush();
+  Serial.end();
   digitalWrite(LED_BUILTIN, HIGH);
   LowPower.deepSleep();
   digitalWrite(LED_BUILTIN, LOW);
   LowPower.deepSleep();
+  Serial.begin(115200);
+  while (!Serial) {}
 }
 
 void alarmMatch(void* data) {
