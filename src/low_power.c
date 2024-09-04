@@ -331,7 +331,7 @@ void SystemClock_Decrease(void)
   }
 }
 
-#elif defined(STM32G0xx) || defined(STM32G4xx)
+#elif defined(STM32G0xx) || defined(STM32G4xx) || defined(STM32U0xx)
 /**
   * @brief  For STM32G0 and STM32G4
   *         running in LowPower Sleep requires to slow down frequency to 2MHz max.
@@ -366,7 +366,7 @@ void SystemClock_Decrease(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                 | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-#elif defined(STM32G0xx)
+#elif defined(STM32G0xx) || defined(STM32U0xx)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                 | RCC_CLOCKTYPE_PCLK1;
 #endif
@@ -447,7 +447,8 @@ void LowPower_stop(serial_t *obj)
   /* Enable Ultra low power mode */
   HAL_PWREx_EnableUltraLowPower();
 #endif
-#if defined(PWR_CR1_ULPMEN) || defined(PWR_CR3_ULPMEN)
+#if defined(PWR_CR1_ULPMEN) || defined(PWR_CR3_ULPMEN) || \
+    (defined(PWR_CR3_ENULP) && defined(STM32U0xx))
   /* Enable Ultra low power mode */
   HAL_PWREx_EnableUltraLowPowerMode();
 #endif
@@ -479,13 +480,15 @@ void LowPower_stop(serial_t *obj)
 #endif
 #endif
   /* Enter Stop mode */
-#if defined(UART_WKUP_SUPPORT) && (defined(PWR_CPUCR_RETDS_CD) \
- || defined(PWR_CR1_LPMS_STOP2) || defined(PWR_LOWPOWERMODE_STOP2) \
- || defined(LL_PWR_STOP2_MODE))
+#if defined(UART_WKUP_SUPPORT) && (defined(PWR_CPUCR_RETDS_CD) || \
+    defined(LL_PWR_MODE_STOP2))
   if ((WakeUpUart == NULL)
       || (WakeUpUart->Instance == (USART_TypeDef *)LPUART1_BASE)
 #ifdef LPUART2_BASE
       || (WakeUpUart->Instance == (USART_TypeDef *)LPUART2_BASE)
+#endif
+#ifdef LPUART3_BASE
+      || (WakeUpUart->Instance == (USART_TypeDef *)LPUART3_BASE)
 #endif
      ) {
 #if defined(PWR_CR1_RRSTP)
@@ -596,7 +599,11 @@ void LowPower_shutdown(bool isRTC)
 #if defined(LL_PWR_SHUTDOWN_MODE) || defined(LL_PWR_MODE_SHUTDOWN)
   /* LSE must be on to use shutdown mode within RTC else fallback to standby */
   if ((!isRTC) || (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == SET)) {
+#if defined(STM32U0xx)
+    HAL_PWR_EnterSHUTDOWNMode();
+#else
     HAL_PWREx_EnterSHUTDOWNMode();
+#endif
   } else
 #else
   UNUSED(isRTC);
