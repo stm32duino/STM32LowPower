@@ -495,8 +495,17 @@ void LowPower_stop(serial_t *obj)
     // STM32L4+ must keep SRAM3 content when entering STOP2 lowpower mode
     HAL_PWREx_EnableSRAM3ContentRetention();
 #endif /* PWR_CR1_RRSTP */
-    // STM32L4xx supports STOP2 mode which halves consumption
+    // STM32L4xx and STM32H7xx supports STOP2 mode which halves consumption
+#if defined(STM32H7xx)
+#if defined(PWR_LOWPOWERREGULATOR_ON)
+    HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+#else
+    HAL_PWREx_EnterSTOP2Mode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
+#endif
+    HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+#else
     HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
+#endif
   } else
 #endif
   {
