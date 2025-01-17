@@ -26,7 +26,8 @@ jobs:
     - name: Astyle check
       id: Astyle
       uses: stm32duino/actions/astyle-check@main
-
+      with:
+        astyle-definition: 'extras/.astylerc'
     # Use the output from the `Astyle` step
     - name: Astyle Errors
       if: failure()
