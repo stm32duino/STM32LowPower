@@ -40,6 +40,118 @@ static UART_HandleTypeDef *WakeUpUart = NULL;
 /* Save callback pointer */
 static void (*WakeUpUartCb)(void) = NULL;
 
+#if defined(PWR_WAKEUP_SELECT_0) || defined(PWR_WAKEUP1_SOURCE_SELECTION_0)
+typedef struct {
+  PinName pin;
+  uint32_t wkup_pin;
+  uint32_t selection;
+#if defined(PWR_WAKEUP1_SOURCE_SELECTION_0)
+  uint32_t low;
+#endif
+} WakePinSel;
+
+const WakePinSel WakeupPinSel[] = {
+#if defined(PWR_WAKEUP_SELECT_0)
+  /* PWR_WAKEUP_SELECT_0 */
+  {PA_0,    PWR_WAKEUP_LINE1, PWR_WAKEUP_SELECT_0},
+  {PA_4,    PWR_WAKEUP_LINE2, PWR_WAKEUP_SELECT_0},
+  {PE_6,    PWR_WAKEUP_LINE3, PWR_WAKEUP_SELECT_0},
+  {PA_2,    PWR_WAKEUP_LINE4, PWR_WAKEUP_SELECT_0},
+  {PC_5,    PWR_WAKEUP_LINE5, PWR_WAKEUP_SELECT_0},
+  {PB_5,    PWR_WAKEUP_LINE6, PWR_WAKEUP_SELECT_0},
+  {PB_15,   PWR_WAKEUP_LINE7, PWR_WAKEUP_SELECT_0},
+  /* PWR_WAKEUP_SELECT_1 */
+  {PB_2,    PWR_WAKEUP_LINE1, PWR_WAKEUP_SELECT_1},
+  {PC_13,   PWR_WAKEUP_LINE2, PWR_WAKEUP_SELECT_1},
+  {PA_1,    PWR_WAKEUP_LINE3, PWR_WAKEUP_SELECT_1},
+  {PB_1,    PWR_WAKEUP_LINE4, PWR_WAKEUP_SELECT_1},
+  {PA_3,    PWR_WAKEUP_LINE5, PWR_WAKEUP_SELECT_1},
+  {PA_5,    PWR_WAKEUP_LINE6, PWR_WAKEUP_SELECT_1},
+  {PA_6,    PWR_WAKEUP_LINE7, PWR_WAKEUP_SELECT_1},
+  {PA_7,    PWR_WAKEUP_LINE8, PWR_WAKEUP_SELECT_1},
+  /* PWR_WAKEUP_SELECT_2 */
+  {PE_4,    PWR_WAKEUP_LINE1, PWR_WAKEUP_SELECT_2},
+  {PE_5,    PWR_WAKEUP_LINE2, PWR_WAKEUP_SELECT_2},
+  {PB_6,    PWR_WAKEUP_LINE3, PWR_WAKEUP_SELECT_2},
+  {PB_7,    PWR_WAKEUP_LINE4, PWR_WAKEUP_SELECT_2},
+  {PB_8,    PWR_WAKEUP_LINE5, PWR_WAKEUP_SELECT_2},
+  {PE_7,    PWR_WAKEUP_LINE6, PWR_WAKEUP_SELECT_2},
+  {PE_8,    PWR_WAKEUP_LINE7, PWR_WAKEUP_SELECT_2},
+  {PB_10,   PWR_WAKEUP_LINE8, PWR_WAKEUP_SELECT_2},
+  {NC,   0, 0}
+#else /* PWR_WAKEUP_SELECT_0 */
+  /* PWR_WAKEUPx_SOURCE_SELECTION_0 */
+  {PA_0,    PWR_WAKEUP_PIN1, PWR_WAKEUP1_SOURCE_SELECTION_0, PWR_WAKEUP1_POLARITY_LOW},
+#if defined(PWR_WAKEUP2_SOURCE_SELECTION_0)
+  {PA_4,    PWR_WAKEUP_PIN2, PWR_WAKEUP2_SOURCE_SELECTION_0, PWR_WAKEUP2_POLARITY_LOW},
+#endif
+#if defined(PWR_WAKEUP3_SOURCE_SELECTION_0)
+  {PE_6,    PWR_WAKEUP_PIN3, PWR_WAKEUP3_SOURCE_SELECTION_0, PWR_WAKEUP3_POLARITY_LOW},
+#endif
+  {PA_2,    PWR_WAKEUP_PIN4, PWR_WAKEUP4_SOURCE_SELECTION_0, PWR_WAKEUP4_POLARITY_LOW},
+#if defined(PWR_WAKEUP5_SOURCE_SELECTION_0)
+  {PC_5,    PWR_WAKEUP_PIN5, PWR_WAKEUP5_SOURCE_SELECTION_0, PWR_WAKEUP5_POLARITY_LOW},
+#endif
+#if defined(PWR_WAKEUP8_SOURCE_SELECTION_0)
+  /* STM32U5xx */
+  {PB_5,    PWR_WAKEUP_PIN6, PWR_WAKEUP6_SOURCE_SELECTION_0, PWR_WAKEUP6_POLARITY_LOW},
+  {PB_15,   PWR_WAKEUP_PIN7, PWR_WAKEUP7_SOURCE_SELECTION_0, PWR_WAKEUP7_POLARITY_LOW},
+  {PF_2,    PWR_WAKEUP_PIN8, PWR_WAKEUP8_SOURCE_SELECTION_0, PWR_WAKEUP8_POLARITY_LOW},
+#else
+  /* STM32WBAxx */
+  {PA_12,   PWR_WAKEUP_PIN6, PWR_WAKEUP6_SOURCE_SELECTION_0, PWR_WAKEUP6_POLARITY_LOW},
+  {PB_14,   PWR_WAKEUP_PIN7, PWR_WAKEUP7_SOURCE_SELECTION_0, PWR_WAKEUP7_POLARITY_LOW},
+#endif
+  /* PWR_WAKEUPx_SOURCE_SELECTION_1 */
+#if defined(PWR_WAKEUP1_SOURCE_SELECTION_1)
+  {PB_2,    PWR_WAKEUP_PIN1, PWR_WAKEUP1_SOURCE_SELECTION_1, PWR_WAKEUP1_POLARITY_LOW},
+#endif
+#if defined(PWR_WAKEUP2_SOURCE_SELECTION_1)
+  {PC_13,   PWR_WAKEUP_PIN2, PWR_WAKEUP2_SOURCE_SELECTION_1, PWR_WAKEUP2_POLARITY_LOW},
+#endif
+  {PA_1,    PWR_WAKEUP_PIN3, PWR_WAKEUP3_SOURCE_SELECTION_1, PWR_WAKEUP3_POLARITY_LOW},
+#if defined(PWR_WAKEUP4_SOURCE_SELECTION_1)
+  {PB_1,    PWR_WAKEUP_PIN4, PWR_WAKEUP4_SOURCE_SELECTION_1, PWR_WAKEUP4_POLARITY_LOW},
+#endif
+#if defined(PWR_WAKEUP5_SOURCE_SELECTION_1)
+  {PA_3,    PWR_WAKEUP_PIN5, PWR_WAKEUP5_SOURCE_SELECTION_1, PWR_WAKEUP5_POLARITY_LOW},
+#endif
+  {PA_5,    PWR_WAKEUP_PIN6, PWR_WAKEUP6_SOURCE_SELECTION_1, PWR_WAKEUP6_POLARITY_LOW},
+  {PA_6,    PWR_WAKEUP_PIN7, PWR_WAKEUP7_SOURCE_SELECTION_1, PWR_WAKEUP7_POLARITY_LOW},
+  {PA_7,    PWR_WAKEUP_PIN8, PWR_WAKEUP8_SOURCE_SELECTION_1, PWR_WAKEUP8_POLARITY_LOW},
+  /* PWR_WAKEUPx_SOURCE_SELECTION_2 */
+#if defined(PWR_WAKEUP1_SOURCE_SELECTION_2)
+  {PE_4,    PWR_WAKEUP_PIN1, PWR_WAKEUP1_SOURCE_SELECTION_2, PWR_WAKEUP1_POLARITY_LOW},
+#endif
+#if defined(PWR_WAKEUP2_SOURCE_SELECTION_2)
+  {PE_5,    PWR_WAKEUP_PIN2, PWR_WAKEUP2_SOURCE_SELECTION_2, PWR_WAKEUP2_POLARITY_LOW},
+#endif
+#if defined(PWR_WAKEUP3_SOURCE_SELECTION_2)
+  {PB_6,    PWR_WAKEUP_PIN3, PWR_WAKEUP3_SOURCE_SELECTION_2, PWR_WAKEUP3_POLARITY_LOW},
+#endif
+#if defined(PWR_WAKEUP4_SOURCE_SELECTION_2)
+  {PB_7,    PWR_WAKEUP_PIN4, PWR_WAKEUP4_SOURCE_SELECTION_2, PWR_WAKEUP4_POLARITY_LOW}, /* Only for STM32U5 */
+#endif
+#if defined(PWR_WAKEUP5_SOURCE_SELECTION_2)
+  {PB_7,    PWR_WAKEUP_PIN5, PWR_WAKEUP5_SOURCE_SELECTION_2, PWR_WAKEUP5_POLARITY_LOW}, /* Only for STM32WBA */
+  {PB_8,    PWR_WAKEUP_PIN5, PWR_WAKEUP5_SOURCE_SELECTION_2, PWR_WAKEUP5_POLARITY_LOW}, /* Only for STM32U5 */
+#endif
+#if defined(PWR_WAKEUP6_SOURCE_SELECTION_2)
+  {PE_7,    PWR_WAKEUP_PIN6, PWR_WAKEUP6_SOURCE_SELECTION_2, PWR_WAKEUP6_POLARITY_LOW},
+#endif
+#if defined(PWR_WAKEUP7_SOURCE_SELECTION_2)
+  {PE_8,    PWR_WAKEUP_PIN7, PWR_WAKEUP7_SOURCE_SELECTION_2, PWR_WAKEUP7_POLARITY_LOW},
+#endif
+#if defined(PWR_WAKEUP8_SOURCE_SELECTION_2)
+  {PB_9,    PWR_WAKEUP_PIN8, PWR_WAKEUP8_SOURCE_SELECTION_2, PWR_WAKEUP8_POLARITY_LOW}, /* Only for STM32WBA */
+  {PB_10,   PWR_WAKEUP_PIN8, PWR_WAKEUP8_SOURCE_SELECTION_2, PWR_WAKEUP8_POLARITY_LOW}, /* Only for STM32U5 */
+#endif
+  {NC,   0, 0, 0}
+#endif /* PWR_WAKEUP_SELECT_0 */
+};
+#endif /* PWR_WAKEUP_SELECT_0 || PWR_WAKEUP1_SOURCE_SELECTION_0 */
+
+
 #if defined(PWR_FLAG_WUF)
 #define PWR_FLAG_WU PWR_FLAG_WUF
 #elif defined(PWR_WAKEUP_ALL_FLAG)
@@ -88,21 +200,15 @@ void LowPower_init()
   */
 void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
 {
+  PinName p = digitalPinToPinName(pin);
+#if !defined(PWR_WAKEUP_SELECT_0) && !defined(PWR_WAKEUP1_SOURCE_SELECTION_0)
 #if !defined(PWR_WAKEUP_PIN1_HIGH)
   UNUSED(mode);
 #endif
   uint32_t wkup_pin = 0;
-  PinName p = digitalPinToPinName(pin);
   if (p != NC) {
-#ifdef PWR_WAKEUP_PIN1
-    if ((p == SYS_WKUP1)
-#ifdef PWR_WAKEUP_PIN1_1
-        || (p == SYS_WKUP1_1)
-#endif
-#ifdef PWR_WAKEUP_PIN1_2
-        || (p == SYS_WKUP1_2)
-#endif
-       ) {
+#if defined(PWR_WAKEUP_PIN1)
+    if (p == SYS_WKUP1) {
       wkup_pin = PWR_WAKEUP_PIN1;
 #ifdef PWR_WAKEUP_PIN1_HIGH
       if (mode != RISING) {
@@ -112,14 +218,7 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN1 */
 #ifdef PWR_WAKEUP_PIN2
-    if ((p == SYS_WKUP2)
-#ifdef PWR_WAKEUP_PIN2_1
-        || (p == SYS_WKUP2_1)
-#endif
-#ifdef PWR_WAKEUP_PIN2_2
-        || (p == SYS_WKUP2_2)
-#endif
-       ) {
+    if (p == SYS_WKUP2) {
       wkup_pin = PWR_WAKEUP_PIN2;
 #ifdef PWR_WAKEUP_PIN2_HIGH
       if (mode != RISING) {
@@ -129,14 +228,7 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN2 */
 #ifdef PWR_WAKEUP_PIN3
-    if ((p == SYS_WKUP3)
-#ifdef PWR_WAKEUP_PIN3_1
-        || (p == SYS_WKUP3_1)
-#endif
-#ifdef PWR_WAKEUP_PIN3_2
-        || (p == SYS_WKUP3_2)
-#endif
-       ) {
+    if (p == SYS_WKUP3) {
       wkup_pin = PWR_WAKEUP_PIN3;
 #ifdef PWR_WAKEUP_PIN3_HIGH
       if (mode != RISING) {
@@ -146,14 +238,7 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN3 */
 #ifdef PWR_WAKEUP_PIN4
-    if ((p == SYS_WKUP4)
-#ifdef PWR_WAKEUP_PIN4_1
-        || (p == SYS_WKUP4_1)
-#endif
-#ifdef PWR_WAKEUP_PIN4_2
-        || (p == SYS_WKUP4_2)
-#endif
-       ) {
+    if (p == SYS_WKUP4) {
       wkup_pin = PWR_WAKEUP_PIN4;
 #ifdef PWR_WAKEUP_PIN4_HIGH
       if (mode != RISING) {
@@ -163,14 +248,7 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN4 */
 #ifdef PWR_WAKEUP_PIN5
-    if ((p == SYS_WKUP5)
-#ifdef PWR_WAKEUP_PIN5_1
-        || (p == SYS_WKUP5_1)
-#endif
-#ifdef PWR_WAKEUP_PIN5_2
-        || (p == SYS_WKUP5_2)
-#endif
-       ) {
+    if (p == SYS_WKUP5) {
       wkup_pin = PWR_WAKEUP_PIN5;
 #ifdef PWR_WAKEUP_PIN5_HIGH
       if (mode != RISING) {
@@ -180,14 +258,7 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN5 */
 #ifdef PWR_WAKEUP_PIN6
-    if ((p == SYS_WKUP6)
-#ifdef PWR_WAKEUP_PIN6_1
-        || (p == SYS_WKUP6_1)
-#endif
-#ifdef PWR_WAKEUP_PIN6_2
-        || (p == SYS_WKUP6_2)
-#endif
-       ) {
+    if (p == SYS_WKUP6) {
       wkup_pin = PWR_WAKEUP_PIN6;
 #ifdef PWR_WAKEUP_PIN6_HIGH
       if (mode != RISING) {
@@ -197,33 +268,66 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     }
 #endif /* PWR_WAKEUP_PIN6 */
 #ifdef PWR_WAKEUP_PIN7
-    if ((p == SYS_WKUP7)
-#ifdef PWR_WAKEUP_PIN7_1
-        || (p == SYS_WKUP7_1)
-#endif
-#ifdef PWR_WAKEUP_PIN7_2
-        || (p == SYS_WKUP7_2)
-#endif
-       ) {
+    if (p == SYS_WKUP7) {
       wkup_pin = PWR_WAKEUP_PIN7;
+#ifdef PWR_WAKEUP_PIN7_HIGH
+      if (mode != RISING) {
+        wkup_pin = PWR_WAKEUP_PIN7_LOW;
+      }
+#endif
     }
 #endif /* PWR_WAKEUP_PIN7 */
 #ifdef PWR_WAKEUP_PIN8
-    if ((p == SYS_WKUP8)
-#ifdef PWR_WAKEUP_PIN8_1
-        || (p == SYS_WKUP8_1)
-#endif
-#ifdef PWR_WAKEUP_PIN8_2
-        || (p == SYS_WKUP8_2)
-#endif
-       ) {
+    if (p == SYS_WKUP8) {
       wkup_pin = PWR_WAKEUP_PIN8;
+#ifdef PWR_WAKEUP_PIN8_HIGH
+      if (mode != RISING) {
+        wkup_pin = PWR_WAKEUP_PIN8_LOW;
+      }
+#endif
     }
 #endif /* PWR_WAKEUP_PIN8 */
     if (IS_PWR_WAKEUP_PIN(wkup_pin)) {
       HAL_PWR_EnableWakeUpPin(wkup_pin);
     }
   }
+#else
+  /* Two cases:
+   * 1- STM32U5 and STM32WBA provides a compatible way to configure
+   *    the wakeup pin using HAL_PWR_EnableWakeUpPin but only selection 0
+   *    pins are managed.
+   * 2- STM32U3 uses HAL_PWR_EnableWakeUpLine.
+   */
+  /* First find index of the pin if valid */
+  WakePinSel *WakeupPinSel_idx = (WakePinSel *) WakeupPinSel;
+
+  /* Read through PinMapAnalogSwitch array */
+  while (WakeupPinSel_idx->pin != NC) {
+    /* Check whether pin is or is associated to dualpad Analog Input */
+    if (WakeupPinSel_idx->pin == p) {
+      break;
+    }
+    WakeupPinSel_idx ++;
+  }
+  if (WakeupPinSel_idx->pin != NC) {
+#if defined(PWR_WAKEUP1_SOURCE_SELECTION_0)
+    uint32_t wkup_pin = WakeupPinSel_idx->wkup_pin | WakeupPinSel_idx->selection;
+    if (mode != RISING) {
+      wkup_pin |= PWR_WAKEUP1_POLARITY_LOW;
+    }
+    if (IS_PWR_WAKEUP_PIN(wkup_pin)) {
+      HAL_PWR_EnableWakeUpPin(wkup_pin);
+    }
+#else
+    if (IS_PWR_WAKEUP_LINE(WakeupPinSel_idx->wkup_pin)) {
+      HAL_PWR_EnableWakeUpLine(WakeupPinSel_idx->wkup_pin, WakeupPinSel_idx->selection, (mode != RISING) ? PWR_WAKEUP_POLARITY_LOW : PWR_WAKEUP_POLARITY_HIGH);
+      /* Enable the NVIC for Wake-up pin */
+      HAL_NVIC_SetPriority(PWR_IRQn, 0, 0x00);
+      HAL_NVIC_EnableIRQ(PWR_IRQn);
+    }
+#endif /* PWR_WAKEUP1_SOURCE_SELECTION_0 */
+  }
+#endif /* !PWR_WAKEUP_SELECT_0 && !PWR_WAKEUP1_SOURCE_SELECTION_0 */
 }
 
 #if defined(PWR_CSR_REGLPF)
