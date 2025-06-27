@@ -57,6 +57,12 @@ enable an I2C peripheral in low power mode. See board documentation for low powe
 >
 > * The board will restart when exit shutdown mode.
 
+> [!Important]
+> For STM32WB0x:
+> * board will restart when exit shutdown mode and deep sleep.
+> * Shutdown wakeup only with reset pin.
+> * Wakeup from UART not supported.
+
 ## Hardware state
 
 * **Idle mode**: low wake-up latency (µs range) (e.g. ARM WFI). Memories and

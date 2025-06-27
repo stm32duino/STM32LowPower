@@ -20,6 +20,7 @@
 
 #include "Arduino.h"
 #include "low_power.h"
+#include "stm32yyxx_ll_cortex.h"
 #include "stm32yyxx_ll_pwr.h"
 
 #if defined(HAL_PWR_MODULE_ENABLED) && !defined(HAL_PWR_MODULE_ONLY)
@@ -156,6 +157,8 @@ const WakePinSel WakeupPinSel[] = {
 #define PWR_FLAG_WU PWR_FLAG_WUF
 #elif defined(PWR_WAKEUP_ALL_FLAG)
 #define PWR_FLAG_WU PWR_WAKEUP_ALL_FLAG
+#elif defined(PWR_WU_FLAG_ALL)
+#define PWR_FLAG_WU PWR_WU_FLAG_ALL
 #endif
 #if defined(PWR_FLAG_SBF)
 #define PWR_FLAG_SB PWR_FLAG_SBF
@@ -182,12 +185,13 @@ void LowPower_init()
   /* Ensure that HSI is wake-up system clock */
   __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_HSI);
 #endif
+#ifdef PWR_FLAG_SB
   /* Check if the system was resumed from StandBy mode */
   if (__HAL_PWR_GET_FLAG(PWR_FLAG_SB) != RESET) {
     /* Clear Standby flag */
     __HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
   }
-
+#endif
   /* Clear all related wakeup flags */
   __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
 }
@@ -201,7 +205,190 @@ void LowPower_init()
 void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
 {
   PinName p = digitalPinToPinName(pin);
-#if !defined(PWR_WAKEUP_SELECT_0) && !defined(PWR_WAKEUP1_SOURCE_SELECTION_0)
+#if defined(PWR_WAKEUP_SELECT_0) || defined(PWR_WAKEUP1_SOURCE_SELECTION_0)
+  /* Two cases:
+   * 1- STM32U5 and STM32WBA provides a compatible way to configure
+   *    the wakeup pin using HAL_PWR_EnableWakeUpPin but only selection 0
+   *    pins are managed.
+   * 2- STM32U3 uses HAL_PWR_EnableWakeUpLine.
+   */
+  /* First find index of the pin if valid */
+  WakePinSel *WakeupPinSel_idx = (WakePinSel *) WakeupPinSel;
+
+  /* Read through PinMapAnalogSwitch array */
+  while (WakeupPinSel_idx->pin != NC) {
+    /* Check whether pin is or is associated to dualpad Analog Input */
+    if (WakeupPinSel_idx->pin == p) {
+      break;
+    }
+    WakeupPinSel_idx ++;
+  }
+  if (WakeupPinSel_idx->pin != NC) {
+#if defined(PWR_WAKEUP1_SOURCE_SELECTION_0)
+    uint32_t wkup_pin = WakeupPinSel_idx->wkup_pin | WakeupPinSel_idx->selection;
+    if (mode != RISING) {
+      wkup_pin |= PWR_WAKEUP1_POLARITY_LOW;
+    }
+    if (IS_PWR_WAKEUP_PIN(wkup_pin)) {
+      HAL_PWR_EnableWakeUpPin(wkup_pin);
+    }
+#else
+    if (IS_PWR_WAKEUP_LINE(WakeupPinSel_idx->wkup_pin)) {
+      HAL_PWR_EnableWakeUpLine(WakeupPinSel_idx->wkup_pin, WakeupPinSel_idx->selection, (mode != RISING) ? PWR_WAKEUP_POLARITY_LOW : PWR_WAKEUP_POLARITY_HIGH);
+      /* Enable the NVIC for Wake-up pin */
+      HAL_NVIC_SetPriority(PWR_IRQn, 0, 0x00);
+      HAL_NVIC_EnableIRQ(PWR_IRQn);
+    }
+#endif /* PWR_WAKEUP1_SOURCE_SELECTION_0 */
+  }
+#elif defined(PWR_WAKEUP_PA0)
+  uint32_t wkup_pin = 0;
+  if (p != NC) {
+#if defined(PWR_WAKEUP_PB0)
+    if (p == PB_0) {
+      wkup_pin = PWR_WAKEUP_PB0;
+    }
+#endif
+#ifdef PWR_WAKEUP_PB1
+    if (p == PB_1) {
+      wkup_pin = PWR_WAKEUP_PB1;
+    }
+#endif
+#ifdef PWR_WAKEUP_PB2
+    if (p == PB_2) {
+      wkup_pin = PWR_WAKEUP_PB0;
+    }
+#endif
+#ifdef PWR_WAKEUP_PB3
+    if (p == PB_3) {
+      wkup_pin = PWR_WAKEUP_PB3;
+    }
+#endif
+#ifdef PWR_WAKEUP_PB4
+    if (p == PB_4) {
+      wkup_pin = PWR_WAKEUP_PB4;
+    }
+#endif
+#ifdef PWR_WAKEUP_PB5
+    if (p == PB_5) {
+      wkup_pin = PWR_WAKEUP_PB5;
+    }
+#endif
+#ifdef PWR_WAKEUP_PB6
+    if (p == PB_6) {
+      wkup_pin = PWR_WAKEUP_PB6;
+    }
+#endif
+#ifdef PWR_WAKEUP_PB7
+    if (p == PB_7) {
+      wkup_pin = PWR_WAKEUP_PB7;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA8
+    if (p == PA_8) {
+      wkup_pin = PWR_WAKEUP_PA8;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA9
+    if (p == PA_9) {
+      wkup_pin = PWR_WAKEUP_PA9;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA10
+    if (p == PA_10) {
+      wkup_pin = PWR_WAKEUP_PA10;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA11
+    if (p == PA_11) {
+      wkup_pin = PWR_WAKEUP_PA11;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA0
+    if (p == PA_0) {
+      wkup_pin = PWR_WAKEUP_PA0;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA1
+    if (p == PA_1) {
+      wkup_pin = PWR_WAKEUP_PA1;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA2
+    if (p == PA_2) {
+      wkup_pin = PWR_WAKEUP_PA2;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA3
+    if (p == PA_3) {
+      wkup_pin = PWR_WAKEUP_PA3;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA4
+    if (p == PA_4) {
+      wkup_pin = PWR_WAKEUP_PA4;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA5
+    if (p == PA_5) {
+      wkup_pin = PWR_WAKEUP_PA5;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA6
+    if (p == PA_6) {
+      wkup_pin = PWR_WAKEUP_PA6;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA7
+    if (p == PA_7) {
+      wkup_pin = PWR_WAKEUP_PA7;
+    }
+#endif
+#ifdef PWR_WAKEUP_PB8
+    if (p == PB_8) {
+      wkup_pin = PWR_WAKEUP_PB8;
+    }
+#endif
+#ifdef PWR_WAKEUP_PB9
+    if (p == PB_9) {
+      wkup_pin = PWR_WAKEUP_PB9;
+    }
+#endif
+#ifdef PWR_WAKEUP_PB10
+    if (p == PB_10) {
+      wkup_pin = PWR_WAKEUP_PB10;
+    }
+#endif
+#ifdef PWR_WAKEUP_PB11
+    if (p == PB_11) {
+      wkup_pin = PWR_WAKEUP_PB11;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA12
+    if (p == PA_12) {
+      wkup_pin = PWR_WAKEUP_PA12;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA13
+    if (p == PA_13) {
+      wkup_pin = PWR_WAKEUP_PA13;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA14
+    if (p == PA_14) {
+      wkup_pin = PWR_WAKEUP_PA14;
+    }
+#endif
+#ifdef PWR_WAKEUP_PA15
+    if (p == PA_15) {
+      wkup_pin = PWR_WAKEUP_PA15;
+    }
+#endif
+    if (IS_PWR_WAKEUP_PIN(wkup_pin)) {
+      HAL_PWR_EnableWakeUpPin(wkup_pin, ((mode == RISING) || (mode == HIGH)) ? PWR_WUP_FALLEDG : PWR_WUP_RISIEDG);
+    }
+  }
+#else
 #if !defined(PWR_WAKEUP_PIN1_HIGH)
   UNUSED(mode);
 #endif
@@ -290,42 +477,6 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
     if (IS_PWR_WAKEUP_PIN(wkup_pin)) {
       HAL_PWR_EnableWakeUpPin(wkup_pin);
     }
-  }
-#else
-  /* Two cases:
-   * 1- STM32U5 and STM32WBA provides a compatible way to configure
-   *    the wakeup pin using HAL_PWR_EnableWakeUpPin but only selection 0
-   *    pins are managed.
-   * 2- STM32U3 uses HAL_PWR_EnableWakeUpLine.
-   */
-  /* First find index of the pin if valid */
-  WakePinSel *WakeupPinSel_idx = (WakePinSel *) WakeupPinSel;
-
-  /* Read through PinMapAnalogSwitch array */
-  while (WakeupPinSel_idx->pin != NC) {
-    /* Check whether pin is or is associated to dualpad Analog Input */
-    if (WakeupPinSel_idx->pin == p) {
-      break;
-    }
-    WakeupPinSel_idx ++;
-  }
-  if (WakeupPinSel_idx->pin != NC) {
-#if defined(PWR_WAKEUP1_SOURCE_SELECTION_0)
-    uint32_t wkup_pin = WakeupPinSel_idx->wkup_pin | WakeupPinSel_idx->selection;
-    if (mode != RISING) {
-      wkup_pin |= PWR_WAKEUP1_POLARITY_LOW;
-    }
-    if (IS_PWR_WAKEUP_PIN(wkup_pin)) {
-      HAL_PWR_EnableWakeUpPin(wkup_pin);
-    }
-#else
-    if (IS_PWR_WAKEUP_LINE(WakeupPinSel_idx->wkup_pin)) {
-      HAL_PWR_EnableWakeUpLine(WakeupPinSel_idx->wkup_pin, WakeupPinSel_idx->selection, (mode != RISING) ? PWR_WAKEUP_POLARITY_LOW : PWR_WAKEUP_POLARITY_HIGH);
-      /* Enable the NVIC for Wake-up pin */
-      HAL_NVIC_SetPriority(PWR_IRQn, 0, 0x00);
-      HAL_NVIC_EnableIRQ(PWR_IRQn);
-    }
-#endif /* PWR_WAKEUP1_SOURCE_SELECTION_0 */
   }
 #endif /* !PWR_WAKEUP_SELECT_0 && !PWR_WAKEUP1_SOURCE_SELECTION_0 */
 }
@@ -508,8 +659,12 @@ void LowPower_sleep(uint32_t regulator)
   HAL_SuspendTick();
 
   /* Enter Sleep Mode , wake up is done once User push-button is pressed */
+#if defined(PWR_SLEEPENTRY_WFI)
   HAL_PWR_EnterSLEEPMode(regulator, PWR_SLEEPENTRY_WFI);
-
+#else
+  (void)regulator;
+  HAL_PWR_EnterSLEEPMode();
+#endif
 #if defined(PWR_LOWPOWERREGULATOR_ON) && \
     (defined(PWR_CSR_REGLPF) || defined(PWR_SR2_REGLPF))
   // In case of LowPower Regulator used for sleep, restore Main regulator on exit
@@ -546,7 +701,16 @@ void LowPower_stop(serial_t *obj)
     HAL_UARTEx_EnableStopMode(WakeUpUart);
   }
 #endif
+#if defined(STM32WB0x)
+  __HAL_PWR_CLEAR_FLAG(PWR_FLAG_DEEPSTOPF);
+  __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+  PWR_DEEPSTOPTypeDef configDEEPSTOP;
 
+  configDEEPSTOP.deepStopMode = PWR_DEEPSTOP_WITH_SLOW_CLOCK_ON;
+  /* Enter the Deepstop mode */
+  HAL_PWR_ConfigDEEPSTOP(&configDEEPSTOP);
+  HAL_PWR_EnterDEEPSTOPMode();
+#else
 #if defined(PWR_CR_ULP)
   /* Enable Ultra low power mode */
   HAL_PWREx_EnableUltraLowPower();
@@ -619,7 +783,7 @@ void LowPower_stop(serial_t *obj)
     HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
 #endif
   }
-
+#endif /* STM32WB0x */
   /* Exit Stop mode reset clocks */
   SystemClock_ConfigFromStop();
 #if defined(UART_WKUP_SUPPORT)
@@ -640,6 +804,7 @@ void LowPower_stop(serial_t *obj)
   }
 }
 
+
 /**
   * @brief  Enable the standby mode. The board reset when leaves this mode.
   * @param  None
@@ -647,6 +812,7 @@ void LowPower_stop(serial_t *obj)
   */
 void LowPower_standby()
 {
+#if !defined(STM32WB0x)
   __disable_irq();
 
   /* Clear wakeup flags */
@@ -678,6 +844,7 @@ void LowPower_standby()
   LL_C2_PWR_SetPowerMode(LL_PWR_MODE_STANDBY);
 #endif
   HAL_PWR_EnterSTANDBYMode();
+#endif /* !STM32WB0x */
 }
 
 /**
@@ -698,6 +865,7 @@ void LowPower_shutdown(bool isRTC)
 #elif defined(PWR_MPUCR_CSSF)
   __HAL_PWR_CLEAR_FLAG(PWR_MPUCR_CSSF);
 #endif
+#if !defined(STM32WB0x)
 #if defined(STM32WBxx)
   /* Set low-power mode of CPU2 */
   /* Note: Typically, action performed by CPU2 on a dual core application.
@@ -724,6 +892,15 @@ void LowPower_shutdown(bool isRTC)
   {
     LowPower_standby();
   }
+#else
+  (void)isRTC; // Avoid unused variable warning
+  PWR_SHUTDOWNTypeDef ConfigSHUTDOWN;
+  HAL_PWR_ConfigSHUTDOWN(&ConfigSHUTDOWN);
+  LL_PWR_DisableDEEPSTOP2();
+  LL_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+  LL_LPM_EnableDeepSleep();
+  __WFI();
+#endif /* !STM32WB0x */
 }
 
 /**
