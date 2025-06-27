@@ -110,15 +110,23 @@ void STM32LowPower::deepSleep(uint32_t ms)
   * @param  ms: optional delay before leave the shutdown mode (default: 0).
   * @retval None
   */
+#if defined(STM32WB0x)
+void STM32LowPower::shutdown(void)
+{
+  LowPower_shutdown(false);
+}
+#else
 void STM32LowPower::shutdown(uint32_t ms)
 {
   if ((ms != 0) || _rtc_wakeup) {
     programRtcWakeUp(ms, SHUTDOWN_MODE);
   }
+
   /* Get the rtc object to know if it is configured */
   STM32RTC &rtc = STM32RTC::getInstance();
   LowPower_shutdown(rtc.isConfigured());
 }
+#endif
 
 /**
   * @brief  Enable GPIO pin in interrupt mode. If the pin is a wakeup pin, it is
@@ -135,7 +143,11 @@ void STM32LowPower::attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback
 {
   attachInterrupt(pin, callback, mode);
 
-  if (LowPowerMode == SHUTDOWN_MODE) {
+  if ((LowPowerMode == SHUTDOWN_MODE)
+#if defined(PWR_WAKEUP_PA0)
+      || (LowPowerMode == DEEP_SLEEP_MODE)
+#endif /* PWR_WAKEUP1_SOURCE_SELECTION_0 */
+     ) {
     // If Gpio is a Wake up pin activate it for shutdown (standby or shutdown stm32)
     LowPower_EnableWakeUpPin(pin, mode);
   }
@@ -192,7 +204,11 @@ void STM32LowPower::programRtcWakeUp(uint32_t ms, LP_Mode lp_mode)
       break;
     // LSI or LSE must be selected as clock source to wakeup the device.
     case DEEP_SLEEP_MODE:
+#if defined(RCC_RTC_WDG_BLEWKUP_CLKSOURCE_HSI64M_DIV2048)
+      clkSrc = (clkSrc == STM32RTC::HSI_CLOCK) ? STM32RTC::LSI_CLOCK : clkSrc;
+#else
       clkSrc = (clkSrc == STM32RTC::HSE_CLOCK) ? STM32RTC::LSI_CLOCK : clkSrc;
+#endif
       break;
     default:
     case SHUTDOWN_MODE:

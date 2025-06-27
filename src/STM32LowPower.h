@@ -80,13 +80,15 @@ class STM32LowPower {
     {
       deepSleep((uint32_t)ms);
     }
-
+#if defined(STM32WB0x)
+    void shutdown(void);
+#else
     void shutdown(uint32_t ms = 0);
     void shutdown(int ms)
     {
       shutdown((uint32_t)ms);
     }
-
+#endif
     void attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode, LP_Mode LowPowerMode = SHUTDOWN_MODE);
 
     void enableWakeupFrom(HardwareSerial *serial, voidFuncPtrVoid callback);
