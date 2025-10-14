@@ -68,7 +68,11 @@ void STM32LowPower::idle(uint32_t ms)
   if ((ms != 0) || _rtc_wakeup) {
     programRtcWakeUp(ms, IDLE_MODE);
   }
+#if defined(PWR_MAINREGULATOR_ON)
   LowPower_sleep(PWR_MAINREGULATOR_ON);
+#else
+  LowPower_sleep(0);
+#endif
 }
 
 /**
@@ -84,8 +88,10 @@ void STM32LowPower::sleep(uint32_t ms)
   }
 #if defined(PWR_LOWPOWERREGULATOR_ON)
   LowPower_sleep(PWR_LOWPOWERREGULATOR_ON);
-#else
+#elif defined(PWR_MAINREGULATOR_ON)
   LowPower_sleep(PWR_MAINREGULATOR_ON);
+#else
+  LowPower_sleep(0);
 #endif
 
 }
@@ -110,7 +116,7 @@ void STM32LowPower::deepSleep(uint32_t ms)
   * @param  ms: optional delay before leave the shutdown mode (default: 0).
   * @retval None
   */
-#if defined(STM32WB0x)
+#if defined(STM32WB0x) || defined(STM32WL3x)
 void STM32LowPower::shutdown(void)
 {
   LowPower_shutdown(false);
@@ -144,9 +150,9 @@ void STM32LowPower::attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback
   attachInterrupt(pin, callback, mode);
 
   if ((LowPowerMode == SHUTDOWN_MODE)
-#if defined(PWR_WAKEUP_PA0)
+#if defined(PWR_WAKEUP_PA0) || defined(PWR_WAKEUP_PORTA)
       || (LowPowerMode == DEEP_SLEEP_MODE)
-#endif /* PWR_WAKEUP1_SOURCE_SELECTION_0 */
+#endif /* PWR_WAKEUP1_SOURCE_SELECTION_0 || PWR_WAKEUP_PORTA */
      ) {
     // If Gpio is a Wake up pin activate it for shutdown (standby or shutdown stm32)
     LowPower_EnableWakeUpPin(pin, mode);
@@ -204,7 +210,7 @@ void STM32LowPower::programRtcWakeUp(uint32_t ms, LP_Mode lp_mode)
       break;
     // LSI or LSE must be selected as clock source to wakeup the device.
     case DEEP_SLEEP_MODE:
-#if defined(RCC_RTC_WDG_BLEWKUP_CLKSOURCE_HSI64M_DIV2048)
+#if defined(RCC_RTC_WDG_BLEWKUP_CLKSOURCE_HSI64M_DIV2048) || defined(RCC_RTC_WDG_SUBG_LPAWUR_LCD_LCSC_CLKSOURCE_DIV512)
       clkSrc = (clkSrc == STM32RTC::HSI_CLOCK) ? STM32RTC::LSI_CLOCK : clkSrc;
 #else
       clkSrc = (clkSrc == STM32RTC::HSE_CLOCK) ? STM32RTC::LSI_CLOCK : clkSrc;

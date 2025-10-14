@@ -80,7 +80,7 @@ class STM32LowPower {
     {
       deepSleep((uint32_t)ms);
     }
-#if defined(STM32WB0x)
+#if defined(STM32WB0x)  || defined(STM32WL3x)
     void shutdown(void);
 #else
     void shutdown(uint32_t ms = 0);
