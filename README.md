@@ -58,7 +58,7 @@ enable an I2C peripheral in low power mode. See board documentation for low powe
 > * The board will restart when exit shutdown mode.
 
 > [!Important]
-> For STM32WB0x:
+> For STM32WB0x and STM32WL3x:
 > * board will restart when exit shutdown mode and deep sleep.
 > * Shutdown wakeup only with reset pin.
 > * Wakeup from UART not supported.

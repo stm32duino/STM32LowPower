@@ -388,6 +388,72 @@ void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
       HAL_PWR_EnableWakeUpPin(wkup_pin, ((mode == RISING) || (mode == HIGH)) ? PWR_WUP_FALLEDG : PWR_WUP_RISIEDG);
     }
   }
+#elif defined(PWR_WAKEUP_PORTA)
+  /* Get GPIO port from pinname*/
+  GPIO_TypeDef *port = get_GPIO_Port(STM_PORT(p));
+  uint32_t wkup_pin = 0;
+  uint32_t wkup_port = 0;
+  switch (STM_PIN(p)) {
+    case 0:
+      wkup_pin = PWR_WAKEUP_PIN0;
+      break;
+    case 1:
+      wkup_pin = PWR_WAKEUP_PIN1;
+      break;
+    case 2:
+      wkup_pin = PWR_WAKEUP_PIN2;
+      break;
+    case 3:
+      wkup_pin = PWR_WAKEUP_PIN3;
+      break;
+    case 4:
+      wkup_pin = PWR_WAKEUP_PIN4;
+      break;
+    case 5:
+      wkup_pin = PWR_WAKEUP_PIN5;
+      break;
+    case 6:
+      wkup_pin = PWR_WAKEUP_PIN6;
+      break;
+    case 7:
+      wkup_pin = PWR_WAKEUP_PIN7;
+      break;
+    case 8:
+      wkup_pin = PWR_WAKEUP_PIN8;
+      break;
+    case 9:
+      wkup_pin = PWR_WAKEUP_PIN9;
+      break;
+    case 10:
+      wkup_pin = PWR_WAKEUP_PIN10;
+      break;
+    case 11:
+      wkup_pin = PWR_WAKEUP_PIN11;
+      break;
+    case 12:
+      wkup_pin = PWR_WAKEUP_PIN12;
+      break;
+    case 13:
+      wkup_pin = PWR_WAKEUP_PIN13;
+      break;
+    case 14:
+      wkup_pin = PWR_WAKEUP_PIN14;
+      break;
+    case 15:
+      wkup_pin = PWR_WAKEUP_PIN15;
+      break;
+    default:
+      port = NULL;
+      break;
+  }
+  if (port == (GPIO_TypeDef *)GPIOA_BASE) {
+    wkup_port = PWR_WAKEUP_PORTA;
+  } else if (port == (GPIO_TypeDef *)GPIOB_BASE) {
+    wkup_port = PWR_WAKEUP_PORTB;
+  }
+  if (IS_PWR_WAKEUP_SOURCE(wkup_pin)) {
+    HAL_PWR_EnableWakeUpPin(wkup_port, wkup_pin, ((mode == RISING) || (mode == HIGH)) ? PWR_WUP_FALLEDG : PWR_WUP_RISIEDG);
+  }
 #else
 #if !defined(PWR_WAKEUP_PIN1_HIGH)
   UNUSED(mode);
@@ -701,7 +767,7 @@ void LowPower_stop(serial_t *obj)
     HAL_UARTEx_EnableStopMode(WakeUpUart);
   }
 #endif
-#if defined(STM32WB0x)
+#if defined(STM32WB0x) || defined(STM32WL3x)
   __HAL_PWR_CLEAR_FLAG(PWR_FLAG_DEEPSTOPF);
   __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
   PWR_DEEPSTOPTypeDef configDEEPSTOP;
@@ -812,7 +878,7 @@ void LowPower_stop(serial_t *obj)
   */
 void LowPower_standby()
 {
-#if !defined(STM32WB0x)
+#if !defined(STM32WB0x) && !defined(STM32WL3x)
   __disable_irq();
 
   /* Clear wakeup flags */
@@ -844,7 +910,7 @@ void LowPower_standby()
   LL_C2_PWR_SetPowerMode(LL_PWR_MODE_STANDBY);
 #endif
   HAL_PWR_EnterSTANDBYMode();
-#endif /* !STM32WB0x */
+#endif /* !STM32WB0x || STM32WL3x */
 }
 
 /**
