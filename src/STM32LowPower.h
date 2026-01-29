@@ -55,7 +55,6 @@ enum LP_Mode : uint8_t {
   SHUTDOWN_MODE
 };
 
-typedef void (*voidFuncPtrVoid)(void) ;
 
 class STM32LowPower {
   public:
@@ -89,10 +88,10 @@ class STM32LowPower {
       shutdown((uint32_t)ms);
     }
 #endif
-    void attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode, LP_Mode LowPowerMode = SHUTDOWN_MODE);
+    void attachInterruptWakeup(pin_size_t pin, voidFuncPtr callback, PinStatus mode, LP_Mode LowPowerMode = SHUTDOWN_MODE);
 
-    void enableWakeupFrom(HardwareSerial *serial, voidFuncPtrVoid callback);
-    void enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback, void *data = NULL);
+    void enableWakeupFrom(Uart *serial, voidFuncPtr callback);
+    void enableWakeupFrom(STM32RTC *rtc, voidFuncPtrParam callback, void *data = NULL);
 
   private:
     bool _configured;     // Low Power mode initialization status
