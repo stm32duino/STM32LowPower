@@ -22,6 +22,8 @@ jobs:
     # First of all, clone the repo using the checkout action.
     - name: Checkout
       uses: actions/checkout@main
+      with:
+        submodules: true
 
     - name: Compilation
       id: Compile
