@@ -815,7 +815,7 @@ void LowPower_stop(serial_t *obj)
 #endif
   /* Enter Stop mode */
 #if defined(UART_WKUP_SUPPORT) && (defined(PWR_CPUCR_RETDS_CD) || \
-    defined(LL_PWR_MODE_STOP2))
+    defined(LL_PWR_MODE_STOP2) || defined(LL_PWR_STOP2_MODE))
   if ((WakeUpUart == NULL)
       || (WakeUpUart->Instance == (USART_TypeDef *)LPUART1_BASE)
 #ifdef LPUART2_BASE
