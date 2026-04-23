@@ -38,7 +38,9 @@
 #define _STM32_LOW_POWER_H_
 
 #include <Arduino.h>
-
+#if defined(STM32_CORE_VERSION) && (STM32_CORE_VERSION  <= 0x020C0000)
+  #error "This library is not compatible with core version used. Please update the core."
+#endif
 #include "low_power.h"
 
 // Check if PWR HAL enable in variants/board_name/stm32yzxx_hal_conf.h
