@@ -145,7 +145,7 @@ void STM32LowPower::shutdown(uint32_t ms)
   *         In case of SHUTDOWN_MODE only, Wakeup pin capability is activated
   * @retval None
   */
-void STM32LowPower::attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback, uint32_t mode, LP_Mode LowPowerMode)
+void STM32LowPower::attachInterruptWakeup(pin_size_t pin, voidFuncPtr callback, PinStatus mode, LP_Mode LowPowerMode)
 {
   attachInterrupt(pin, callback, mode);
 
@@ -161,12 +161,12 @@ void STM32LowPower::attachInterruptWakeup(uint32_t pin, voidFuncPtrVoid callback
 
 /**
   * @brief  Enable a serial interface as a wakeup source.
-  * @param  serial: pointer to a HardwareSerial
+  * @param  serial: pointer to an Uart
   * @param  callback: pointer to callback function called when leave the low power
   *                   mode.
   * @retval None
   */
-void STM32LowPower::enableWakeupFrom(HardwareSerial *serial, voidFuncPtrVoid callback)
+void STM32LowPower::enableWakeupFrom(Uart *serial, voidFuncPtr callback)
 {
   if (serial != NULL) {
     _serial = &(serial->_serial);
@@ -184,7 +184,7 @@ void STM32LowPower::enableWakeupFrom(HardwareSerial *serial, voidFuncPtrVoid cal
   * @param  data: optional pointer to callback data parameters (default NULL).
   * @retval None
   */
-void STM32LowPower::enableWakeupFrom(STM32RTC *rtc, voidFuncPtr callback, void *data)
+void STM32LowPower::enableWakeupFrom(STM32RTC *rtc, voidFuncPtrParam callback, void *data)
 {
   if (rtc == NULL) {
     rtc = &(STM32RTC::getInstance());

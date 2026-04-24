@@ -2,8 +2,12 @@
 Arduino library to support STM32 Low Power.
 
 ## Requirement
- * [Arduino_Core_STM32](https://github.com/stm32duino/Arduino_Core_STM32) version >= 1.3.0
- * [STM32RTC](https://github.com/stm32duino/STM32RTC)
+ * Library version 1.x.x:
+    * [Arduino_Core_STM32](https://github.com/stm32duino/Arduino_Core_STM32) version >= 1.3.0
+    * [STM32RTC](https://github.com/stm32duino/STM32RTC) version 1.x.x
+ * Library version 2.x.x:
+    * [Arduino_Core_STM32](https://github.com/stm32duino/Arduino_Core_STM32) version 3.x.x
+    * [STM32RTC](https://github.com/stm32duino/STM32RTC) version 2.x.x
 
 ## API
 
@@ -30,7 +34,7 @@ Arduino library to support STM32 Low Power.
 **param** mode: interrupt mode (HIGH, LOW, RISING, FALLING or CHANGE)
 **param** LowPowerMode: Low power mode which will be used (IDLE_MODE, SLEEP_MODE, DEEP_SLEEP_MODE or SHUTDOWN_MODE). In case of SHUTDOWN_MODE only, Wakeup pin capability is activated.
 
-* **`void enableWakeupFrom(HardwareSerial *serial, voidFuncPtrVoid callback)`**: enable a UART peripheral in low power mode. See board documentation for low power mode compatibility.  
+* **`void enableWakeupFrom(Uart *serial, voidFuncPtrVoid callback)`**: enable a UART peripheral in low power mode. See board documentation for low power mode compatibility.  
 **param** serial: pointer to a UART  
 **param** callback: pointer to a callback to call when the board is waked up.  
 
@@ -51,7 +55,7 @@ enable an I2C peripheral in low power mode. See board documentation for low powe
 `attachInterruptWakeup()` or `enableWakeupFrom()` functions should be called before `idle()`, `sleep()`, `deepSleep()` or `shutdown()` functions.  
 
 > [!Important]
-> * HardwareSerial used as Wakeup source will configure it to use HSI clock source even if another peripheral clock is configured.
+> * Uart used as Wakeup source will configure it to use HSI clock source even if another peripheral clock is configured.
 >
 > * RTC used as Wakeup source requires to have LSE or LSI as clock source. If one of them is used nothing is changed else it will configure it to use LSI clock source. One exception exists when `SHUTDOWN_MODE` is requested and `PWR_CR1_LPMS` is defined, in that case LSE is required. So, if the board does not have LSE, it will fail.
 >

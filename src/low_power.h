@@ -38,6 +38,7 @@
 #define __LOW_POWER_H
 
 /* Includes ------------------------------------------------------------------*/
+#include "Common.h"
 #include "stm32_def.h"
 #include "uart.h"
 
@@ -53,8 +54,8 @@ extern "C" {
 /* Exported functions ------------------------------------------------------- */
 
 void LowPower_init();
-void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode);
-void LowPower_EnableWakeUpUart(serial_t *serial, void (*FuncPtr)(void));
+void LowPower_EnableWakeUpPin(pin_size_t pin, PinStatus mode);
+void LowPower_EnableWakeUpUart(serial_t *serial, voidFuncPtr callback);
 void LowPower_sleep(uint32_t regulator);
 void LowPower_stop(serial_t *obj);
 void LowPower_standby();
