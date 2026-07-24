@@ -18,8 +18,9 @@
   ******************************************************************************
   */
 
-#include "Arduino.h"
 #include "low_power.h"
+#include "clock.h"
+#include "pins_arduino.h"
 #include "stm32yyxx_ll_cortex.h"
 #include "stm32yyxx_ll_pwr.h"
 
@@ -202,7 +203,7 @@ void LowPower_init()
   * @param  mode: pin mode (edge or state). The configuration have to be compatible.
   * @retval None
   */
-void LowPower_EnableWakeUpPin(uint32_t pin, uint32_t mode)
+void LowPower_EnableWakeUpPin(pin_size_t pin, PinStatus mode)
 {
   PinName p = digitalPinToPinName(pin);
 #if defined(PWR_WAKEUP_SELECT_0) || defined(PWR_WAKEUP1_SOURCE_SELECTION_0)
@@ -975,10 +976,10 @@ void LowPower_shutdown(bool isRTC)
   *         with which low power mode the UART is compatible.
   * Warning This function will change UART clock source to HSI
   * @param  serial: pointer to serial
-  * @param  FuncPtr: pointer to callback
+  * @param  callback: pointer to callback
   * @retval None
   */
-void LowPower_EnableWakeUpUart(serial_t *serial, void (*FuncPtr)(void))
+void LowPower_EnableWakeUpUart(serial_t *serial, voidFuncPtr callback)
 {
 #if defined(UART_WKUP_SUPPORT)
 #ifdef IS_UART_WAKEUP_SELECTION
@@ -1009,7 +1010,7 @@ void LowPower_EnableWakeUpUart(serial_t *serial, void (*FuncPtr)(void))
   UNUSED(serial);
 #endif
   /* Save callback */
-  WakeUpUartCb = FuncPtr;
+  WakeUpUartCb = callback;
 }
 
 /**
