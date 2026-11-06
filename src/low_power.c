@@ -763,6 +763,16 @@ void LowPower_stop(serial_t *obj)
 {
   __disable_irq();
 
+  /*
+   * Suspend Tick increment to prevent wakeup by Systick interrupt, as in
+   * LowPower_sleep(). In Stop mode SysTick normally halts with the core clock,
+   * but with DBGMCU DBG_STOP set (debugging) the clock keeps running and the
+   * 1 ms tick ends Stop mode immediately (a pending interrupt wakes WFI even
+   * with PRIMASK set). The tick is enabled again by
+   * SystemClock_ConfigFromStop() (HAL_RCC_ClockConfig() -> HAL_InitTick()).
+   */
+  HAL_SuspendTick();
+
 #if defined(UART_WKUP_SUPPORT)
   if (WakeUpUart != NULL) {
     HAL_UARTEx_EnableStopMode(WakeUpUart);
